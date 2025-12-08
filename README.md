@@ -25,16 +25,15 @@ go mod vendor  && go run main.go
 
 ## 5、打包可执行文件
 
-### 5.1  ShareSniffer.v0.0.8.windows-amd64.exe
+### 5.1  ShareSniffer.v0.0.9.windows-amd64.exe
+- fyne package -os windows -name ShareSniffer -icon logo.png -release -app-version 0.0.9 -app-id owu.github.io
 
-- fyne package -os windows -name ShareSniffer.windows-amd64 -icon logo.png -release -app-version 0.0.8 -app-id
-  owu.github.io
+### 5.2   ShareSniffer.v0.0.9.linux-amd64.tar.xz
+- fyne package -os linux -name ShareSniffer -icon logo.png -release -app-version 0.0.9 -app-id owu.github.io
 
-### 5.2   ShareSniffer.v0.0.8.linux-amd64.tar.xz
+### 5.3   ShareSniffer.v0.0.9.darwin-amd64.pkg
+- fyne package -os darwin -name ShareSniffer -icon logo.png -release -app-version 0.0.9 -app-id owu.github.io
 
-- fyne package -os linux -name ShareSniffer.linux-amd64 -icon logo.png -release -app-version 0.0.8 -app-id owu.github.io
+### 5.4   ShareSniffer.v0.0.9.android-arm64.apk
+- fyne package -os android/arm64 -name ShareSniffer -icon logo.png -release -app-version 0.0.9 -app-id owu.github.io
 
-### 5.3   ShareSniffer.v0.0.8.darwin-amd64.pkg
-
-- fyne package -os darwin -name ShareSniffer.darwin-amd64 -icon logo.png -release -app-version 0.0.8 -app-id
-  owu.github.io

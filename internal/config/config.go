@@ -74,7 +74,7 @@ func (q *Config) initDefault() {
 	q.CheckConfig.RetryInterval = 1 * time.Second // 减少重试间隔
 
 	// 应用信息默认配置
-	q.AppInfo.Version = "0.0.8"
+	q.AppInfo.Version = "0.0.9"
 	q.AppInfo.AppName = "Share Sniffer"
 	q.AppInfo.AppNameCN = "分享嗅探器"
 	q.AppInfo.ExpirationDate = 1798732799000 // 2026-12-31 23:59:59的时间戳 毫秒
