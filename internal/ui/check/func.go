@@ -13,6 +13,7 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/storage"
 	"fyne.io/fyne/v2/widget"
 	"github.com/owu/share-sniffer/internal/config"
 	"github.com/owu/share-sniffer/internal/core"
@@ -20,39 +21,12 @@ import (
 	"github.com/owu/share-sniffer/internal/utils"
 	"github.com/owu/share-sniffer/internal/workerpool"
 	"github.com/samber/lo"
-	nativeDialog "github.com/sqweek/dialog"
 )
 
 // taskResult 表示检测任务的结果
 type taskResult struct {
 	index  int
 	result core.Result
-}
-
-func (q *CheckUI) OpenFile() {
-	startTime := time.Now()
-	defer logger.Debug("OpenFile方法执行完毕，耗时: %v", time.Since(startTime).Milliseconds())
-
-	fileBuilder := nativeDialog.File().Title("Open File").Filter("Text Files", "txt")
-
-	filename, err := fileBuilder.Load()
-	if err != nil {
-		if err.Error() != "Cancelled" {
-			logger.Error("文件对话框错误: %v", err)
-			panic(err)
-		} else {
-			logger.Debug("用户取消了文件选择")
-		}
-	} else {
-		q.fileEntry.SetText(filename)
-		if _, err1 := os.Stat(q.fileEntry.Text); err1 != nil {
-			logger.Warn("文件状态检查失败: %v", err1)
-			nativeDialog.Message("%s", err1.Error()).Error()
-			return
-		}
-		q.state.FilePath = q.fileEntry.Text
-		q.loadToTable()
-	}
 }
 
 // headerLayout 实现固定列宽的表头布局
@@ -270,25 +244,43 @@ func supportedLinks(url string) bool {
 
 // loadToTable 加载文件并渲染表格
 func (q *CheckUI) loadToTable() {
-	logger.Debug("开始执行LoadToTable方法，文件路径: %s", q.state.FilePath)
+	logger.Debug("开始执行LoadToTable方法，文件路径: %s, 文件URI: %v", q.state.FilePath, q.state.FileURI)
 
 	startTime := time.Now()
 	defer logger.Debug("LoadToTable方法执行完毕，耗时: %v", time.Since(startTime))
 	// 读取文件内容
 	var links []string
-	file, err := os.Open(q.state.FilePath)
-	if err != nil {
-		logger.Warn("打开文件失败: %v", err)
-		fyne.Do(func() {
-			nativeDialog.Message("%s", fmt.Sprintf("打开文件失败:%v", err)).Error()
-		})
-		return
+	var scanner *bufio.Scanner
+
+	// 根据平台选择不同的文件读取方式
+	if q.state.FileURI != nil {
+		// Android平台或支持URI的平台，使用storage包读取
+		reader, readErr := storage.Reader(q.state.FileURI)
+		if readErr != nil {
+			logger.Warn("打开文件失败: %v", readErr)
+			fyne.Do(func() {
+				q.dialogProvider.ShowError(fmt.Sprintf("打开文件失败:%v", readErr))
+			})
+			return
+		}
+		defer reader.Close()
+		scanner = bufio.NewScanner(reader)
+	} else {
+		// 非Android平台，使用os.Open读取
+		file, openErr := os.Open(q.state.FilePath)
+		if openErr != nil {
+			logger.Warn("打开文件失败: %v", openErr)
+			fyne.Do(func() {
+				q.dialogProvider.ShowError(fmt.Sprintf("打开文件失败:%v", openErr))
+			})
+			return
+		}
+		defer file.Close()
+		scanner = bufio.NewScanner(file)
 	}
-	defer file.Close()
 
 	scanStart := time.Now()
 	logger.Debug("开始扫描文件内容")
-	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
 		if line != "" && supportedLinks(line) {
@@ -299,7 +291,7 @@ func (q *CheckUI) loadToTable() {
 	if err := scanner.Err(); err != nil {
 		logger.Warn("读取文件错误: %v", err)
 		fyne.Do(func() {
-			nativeDialog.Message("%s", fmt.Sprintf("读取文件错误:%v", err)).Error()
+			q.dialogProvider.ShowError(fmt.Sprintf("读取文件错误:%v", err))
 		})
 		return
 	}
@@ -308,7 +300,7 @@ func (q *CheckUI) loadToTable() {
 	if len(links) == 0 {
 		logger.Warn("未找到有效链接，文件内容格式错误")
 		fyne.Do(func() {
-			nativeDialog.Message("%s", "打开的分享链接文件错误").Error()
+			q.dialogProvider.ShowError("打开的分享链接文件错误")
 		})
 		return
 	}
@@ -357,7 +349,7 @@ func (q *CheckUI) CheckFile() {
 
 	if q.state.StandardTime > config.ExpirationDate() {
 		logger.Warn("版本已过期，提示用户升级")
-		nativeDialog.Message("版本( v%s )已过期，请升级版本后再试", config.Version()).Info()
+		q.dialogProvider.ShowInfo(fmt.Sprintf("版本( v%s )已过期，请升级版本后再试", config.Version()))
 		return
 	}
 
@@ -402,12 +394,13 @@ func (q *CheckUI) CheckFile() {
 	// 从文件中加载链接
 	var links []string
 	fileLoadStart := time.Now()
-	logger.Debug("开始从文件加载链接: %s", q.state.FilePath)
-	file, err := os.Open(q.state.FilePath)
-	if err != nil {
-		logger.Error("打开文件失败: %v", err)
+	logger.Debug("开始从文件加载链接: %s, URI: %v", q.state.FilePath, q.state.FileURI)
+
+	// 检查是否已打开文件
+	if q.state.FilePath == "" && q.state.FileURI == nil {
+		logger.Warn("未选择任何文件")
 		fyne.Do(func() {
-			nativeDialog.Message("%s", "打开分享链接文件失败").Error()
+			q.dialogProvider.ShowError("请先打开包含分享链接的文件")
 			q.fileCheckButton.SetText("检测")
 			q.fileEntry.Enable()
 			q.fileOpenButton.Enable()
@@ -415,10 +408,45 @@ func (q *CheckUI) CheckFile() {
 		q.isChecking = false
 		return
 	}
-	defer file.Close()
+
+	// 根据平台选择不同的文件读取方式
+	var scanner *bufio.Scanner
+
+	if q.state.FileURI != nil {
+		// Android平台或支持URI的平台，使用storage包读取
+		reader, readErr := storage.Reader(q.state.FileURI)
+		if readErr != nil {
+			logger.Error("打开文件失败: %v", readErr)
+			fyne.Do(func() {
+				q.dialogProvider.ShowError("打开分享链接文件失败")
+				q.fileCheckButton.SetText("检测")
+				q.fileEntry.Enable()
+				q.fileOpenButton.Enable()
+			})
+			q.isChecking = false
+			return
+		}
+		defer reader.Close()
+		scanner = bufio.NewScanner(reader)
+	} else {
+		// 非Android平台，使用os.Open读取
+		file, openErr := os.Open(q.state.FilePath)
+		if openErr != nil {
+			logger.Error("打开文件失败: %v", openErr)
+			fyne.Do(func() {
+				q.dialogProvider.ShowError("打开分享链接文件失败")
+				q.fileCheckButton.SetText("检测")
+				q.fileEntry.Enable()
+				q.fileOpenButton.Enable()
+			})
+			q.isChecking = false
+			return
+		}
+		defer file.Close()
+		scanner = bufio.NewScanner(file)
+	}
 
 	// 优化大文件读取，支持最多9999个链接
-	scanner := bufio.NewScanner(file)
 	linkCount := 0
 	maxLinks := 9999 // 限制最大处理链接数
 
@@ -438,7 +466,7 @@ func (q *CheckUI) CheckFile() {
 	if err := scanner.Err(); err != nil {
 		logger.Error("读取文件错误: %v", err)
 		fyne.Do(func() {
-			nativeDialog.Message("%s", fmt.Sprintf("读取文件错误: %v", err)).Error()
+			q.dialogProvider.ShowError(fmt.Sprintf("读取文件错误: %v", err))
 			q.fileCheckButton.SetText("检测")
 			q.fileEntry.Enable()
 			q.fileOpenButton.Enable()
@@ -451,7 +479,7 @@ func (q *CheckUI) CheckFile() {
 	if linkCount >= maxLinks {
 		logger.Warn("文件中链接数量超过最大限制 %d，仅处理前 %d 个链接", maxLinks, maxLinks)
 		fyne.Do(func() {
-			nativeDialog.Message("文件中链接数量超过最大限制 %d，仅处理前 %d 个链接", maxLinks, maxLinks).Info()
+			q.dialogProvider.ShowInfo(fmt.Sprintf("文件中链接数量超过最大限制 %d，仅处理前 %d 个链接", maxLinks, maxLinks))
 		})
 	}
 
@@ -460,7 +488,7 @@ func (q *CheckUI) CheckFile() {
 	if len(links) == 0 {
 		logger.Warn("未找到有效链接")
 		fyne.Do(func() {
-			nativeDialog.Message("请打开包含分享链接的文件").Error()
+			q.dialogProvider.ShowError("请打开包含分享链接的文件")
 			q.fileCheckButton.SetText("检测")
 			q.fileEntry.Enable()
 			q.fileOpenButton.Enable()

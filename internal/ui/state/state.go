@@ -1,10 +1,15 @@
 package state
 
-import "time"
+import (
+	"fyne.io/fyne/v2"
+	"time"
+)
 
 type AppState struct {
-	//检测的文件
+	//检测的文件路径
 	FilePath string
+	//检测的文件URI
+	FileURI fyne.URI
 
 	//服务端标准时间 毫秒
 	StandardTime int64

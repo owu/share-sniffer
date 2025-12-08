@@ -5,6 +5,7 @@ package app
 
 import (
 	"fmt"
+	"time"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -13,7 +14,6 @@ import (
 	"github.com/owu/share-sniffer/internal/logger"
 	"github.com/owu/share-sniffer/internal/ui/about"
 	"github.com/owu/share-sniffer/internal/ui/check"
-	"github.com/owu/share-sniffer/internal/ui/icons"
 	"github.com/owu/share-sniffer/internal/ui/state"
 	"github.com/owu/share-sniffer/internal/utils"
 )
@@ -51,10 +51,11 @@ func NewShareSnifferApp() *ShareSnifferApp {
 	// 创建应用主窗口
 	w := a.NewWindow(fmt.Sprintf("%s v%s", cfg.AppInfo.AppName, cfg.AppInfo.Version))
 
-	// 设置窗口图标、大小并使其居中显示
-	w.SetIcon(icons.LogoTransparent)
+	// 先设置窗口大小和居中，暂时不设置图标以提高启动速度
 	w.Resize(fyne.NewSize(800, 600))
 	w.CenterOnScreen()
+	// 注释掉图标设置，避免可能的卡顿
+	// w.SetIcon(icons.LogoTransparent)
 
 	// 创建并返回应用实例
 	return &ShareSnifferApp{
@@ -67,14 +68,17 @@ func NewShareSnifferApp() *ShareSnifferApp {
 // Run 启动应用程序
 // 功能:
 // 1. 创建并设置窗口内容
-// 2. 显示窗口并进入主事件循环
-// 3. 使用goroutine在窗口显示后立即设置标准时间，避免阻塞UI
+// 2. 在窗口显示前启动goroutine执行时间同步
+// 3. 显示窗口并进入主事件循环
 func (q *ShareSnifferApp) Run() {
 	// 创建窗口内容并设置到窗口中
 	q.window.SetContent(q.createContent())
 
-	// 使用goroutine在窗口显示后立即执行StandardTime操作，不阻塞UI
+	// 启动goroutine执行时间同步，在窗口显示前就开始执行
+	// 但使用延迟确保UI有足够时间加载
 	go func() {
+		// 延迟1秒执行，确保UI已经完全初始化和显示
+		time.Sleep(1 * time.Second)
 		q.state.StandardTime = utils.StandardTime()
 		logger.Info("ShareSnifferApp: 设置标准时间,%d", q.state.StandardTime)
 	}()

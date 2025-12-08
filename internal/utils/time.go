@@ -49,7 +49,7 @@ func shuffleUrls(urls []struct {
 // 获取单个网站的时间戳（毫秒）
 func getWebsiteTimestamp(webUrl string) (int64, error) {
 	client := &http.Client{
-		Timeout: 3 * time.Second,
+		Timeout: 2 * time.Second, // 减少超时时间到1秒
 	}
 
 	req, err := http.NewRequest("HEAD", webUrl, nil)
@@ -88,7 +88,7 @@ func getWebsiteTimestamp(webUrl string) (int64, error) {
 	return beijingTime.UnixNano() / 1e6, nil
 }
 
-// 随机选择URL获取服务器时间，最多尝试3个不同的URL
+// 随机选择URL获取服务器时间，最多尝试2个不同的URL
 func getRandomTimestamp() (int64, string, error) {
 	// 打乱URL顺序
 	shuffledUrls := shuffleUrls(webUrls)
@@ -96,8 +96,8 @@ func getRandomTimestamp() (int64, string, error) {
 	var lastErr error
 	triedUrls := make(map[string]bool) // 记录已尝试的URL
 
-	// 最多尝试3个不同的URL
-	for i := 0; i < 3 && i < len(shuffledUrls); i++ {
+	// 最多尝试2个不同的URL，减少尝试次数
+	for i := 0; i < 2 && i < len(shuffledUrls); i++ {
 		site := shuffledUrls[i]
 
 		// 如果这个URL已经尝试过，跳过
@@ -115,12 +115,12 @@ func getRandomTimestamp() (int64, string, error) {
 		lastErr = err
 
 		// 如果不是最后一个尝试，等待一小段时间再试下一个
-		if i < 2 && i < len(shuffledUrls)-1 {
-			time.Sleep(200 * time.Millisecond)
+		if i < 1 && i < len(shuffledUrls)-1 {
+			time.Sleep(100 * time.Millisecond) // 减少等待时间
 		}
 	}
 
-	// 所有尝试都失败，返回本地时间
+	// 所有尝试都失败，快速返回本地时间
 	localTimestamp := time.Now().UnixNano() / 1e6
 	logger.Warn("所有服务器尝试失败，使用本地时间: %d", localTimestamp)
 	return localTimestamp, "本地时间", lastErr
