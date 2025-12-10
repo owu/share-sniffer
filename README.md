@@ -100,15 +100,15 @@ The project provides automated packaging scripts located in the `/package` direc
 ```powershell
 # Build Windows GUI version
 cd package
-.uild-windows.ps1
+.\build-windows.ps1
 
 # Build Android version
 cd package
-.uild-android.ps1
+.\build-android.ps1
 
 # Build CLI tool
 cd package
-.uild-cli-windows.ps1
+.\build-cli-windows.ps1
 ```
 
 #### 5.2.2 Linux Platform
