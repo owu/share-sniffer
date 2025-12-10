@@ -195,15 +195,15 @@ share-sniffer-cli.exeに名前を変更します
 
 ### 7.1 アバウトインターフェース
 
-![about](https://github.com/owu/share-sniffer/raw/unstable/screenshot/about.jpg)
+![about](https://github.com/owu/share-sniffer/raw/unstable/screenshot/about.png)
 
 ### 7.2 検出インターフェース
 
-![check](https://github.com/owu/share-sniffer/raw/unstable/screenshot/check.jpg)
+![check](https://github.com/owu/share-sniffer/raw/unstable/screenshot/check.png)
 
 ### 7.3 結果インターフェース
 
-![result](https://github.com/owu/share-sniffer/raw/unstable/screenshot/result.jpg)
+![result](https://github.com/owu/share-sniffer/raw/unstable/screenshot/result.png)
 
 ## 8、CLIモードツールの紹介
 
