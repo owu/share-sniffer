@@ -100,15 +100,15 @@ go run ./launcher/cli/main.go [コマンド/URL]
 ```powershell
 # Windows GUIバージョンを構築
 cd package
-.uild-windows.ps1
+.\uild-windows.ps1
 
 # Androidバージョンを構築
 cd package
-.uild-android.ps1
+.\uild-android.ps1
 
 # CLIツールを構築
 cd package
-.uild-cli-windows.ps1
+.\uild-cli-windows.ps1
 ```
 
 #### 5.2.2 Linuxプラットフォーム
