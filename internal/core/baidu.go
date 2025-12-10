@@ -43,8 +43,8 @@ func (q *BaiduChecker) Check(urlStr string) Result {
 // 返回百度网盘链接的前缀，用于在注册时识别
 //
 // 返回值:
-// - string: 百度网盘链接的前缀，从配置中获取
-func (q *BaiduChecker) GetPrefix() string {
+// - []string: 百度网盘链接的前缀数组，从配置中获取
+func (q *BaiduChecker) GetPrefix() []string {
 	return config.GetSupportedBaidu()
 }
 

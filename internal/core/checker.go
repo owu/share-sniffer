@@ -25,7 +25,7 @@ var (
 // LinkChecker 链接检查器接口
 // 定义了链接检查器必须实现的两个方法
 // 1. Check: 检查给定URL并返回检查结果
-// 2. GetPrefix: 获取该检查器支持的URL前缀
+// 2. GetPrefix: 获取该检查器支持的URL前缀列表
 type LinkChecker interface {
 	// Check 检查链接有效性
 	//
@@ -36,11 +36,11 @@ type LinkChecker interface {
 	// - Result: 包含检查结果的结构体
 	Check(urlStr string) Result
 
-	// GetPrefix 获取支持的链接前缀
+	// GetPrefix 获取支持的链接前缀列表
 	//
 	// 返回值:
-	// - string: URL前缀，用于在GetChecker中匹配对应的检查器
-	GetPrefix() string
+	// - []string: URL前缀列表，用于在GetChecker中匹配对应的检查器
+	GetPrefix() []string
 }
 
 // RegisterChecker 注册链接检查器
@@ -49,8 +49,11 @@ type LinkChecker interface {
 // 参数:
 // - checker: 实现了LinkChecker接口的检查器实例
 func RegisterChecker(checker LinkChecker) {
-	checkers[checker.GetPrefix()] = checker
-	logger.Debug("LinkChecker:注册检查器,%s", checker.GetPrefix())
+	prefixes := checker.GetPrefix()
+	for _, prefix := range prefixes {
+		checkers[prefix] = checker
+		logger.Debug("LinkChecker:注册检查器,%s", prefix)
+	}
 }
 
 // GetChecker 根据URL获取对应的检查器

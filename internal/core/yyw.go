@@ -44,8 +44,8 @@ func (q *YywChecker) Check(urlStr string) Result {
 // 返回115网盘链接的前缀，用于在注册时识别
 //
 // 返回值:
-// - string: 115网盘链接的前缀，从配置中获取
-func (q *YywChecker) GetPrefix() string {
+// - []string: 115网盘链接的前缀数组，从配置中获取
+func (q *YywChecker) GetPrefix() []string {
 	return config.GetSupportedYyw()
 }
 

@@ -1,16 +1,19 @@
+// Package check 提供了检测功能的用户界面和逻辑
+
 package check
 
 import (
 	"fmt"
 	"image/color"
 	"os"
+	"runtime"
 	"strings"
 	"time"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/dialog"
+	fyneDialog "fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/storage"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
@@ -118,34 +121,54 @@ func createEmptyTable() *widget.Table {
 	return table
 }
 
-// 默认的对话框提供者实现（作为后备方案）
-type DefaultDialogProvider struct {
+// 基于 Fyne 原生对话框的提供者（用于Android平台）
+type FyneDialogProvider struct {
 	window fyne.Window
 }
 
-// 默认的getDialogProvider函数实现（作为后备方案）
-func getDialogProvider(window fyne.Window) DialogProvider {
-	return &DefaultDialogProvider{window: window}
-}
-
-// 为DefaultDialogProvider实现DialogProvider接口
-func (d *DefaultDialogProvider) ShowError(message string) {
+// 为FyneDialogProvider实现DialogProvider接口
+func (d *FyneDialogProvider) ShowError(message string) {
 	// 使用Fyne原生的错误对话框
-	dialog.ShowError(fmt.Errorf(message), d.window)
+	fyneDialog.ShowError(fmt.Errorf(message), d.window)
 }
 
-func (d *DefaultDialogProvider) ShowInfo(message string) {
+func (d *FyneDialogProvider) ShowInfo(message string) {
 	// 使用Fyne原生的信息对话框
-	dialog.ShowInformation("信息", message, d.window)
+	fyneDialog.ShowInformation("信息", message, d.window)
 }
 
-// OpenFile 打开文件选择对话框（使用Fyne原生的dialog库）
+// 根据平台获取合适的对话框提供者
+func getDialogProvider(window fyne.Window) DialogProvider {
+	// 检测当前操作系统
+	os := runtime.GOOS
+	logger.Debug("当前操作系统: %s", os)
+
+	// 如果是Android平台，使用Fyne原生对话框
+	if os == "android" {
+		return &FyneDialogProvider{window: window}
+	}
+	// 其他平台（Windows、Linux等）使用DesktopDialogProvider
+	return getDesktopDialogProvider()
+}
+
+// OpenFile 打开文件选择对话框，根据平台选择不同的实现
 func (q *CheckUI) OpenFile() {
 	startTime := time.Now()
 	defer logger.Debug("OpenFile方法执行完毕，耗时: %v", time.Since(startTime).Milliseconds())
 
-	// 使用Fyne原生的dialog库创建文件选择对话框
-	fileDialog := dialog.NewFileOpen(
+	// 根据平台选择不同的文件选择对话框实现
+	if runtime.GOOS == "android" {
+		// Android平台使用Fyne原生的文件选择对话框
+		q.openFileWithFyneDialog()
+	} else {
+		// 桌面平台使用github.com/sqweek/dialog
+		q.openFileWithSqweekDialog()
+	}
+}
+
+// openFileWithFyneDialog 使用Fyne原生的文件选择对话框（Android平台）
+func (q *CheckUI) openFileWithFyneDialog() {
+	fileDialog := fyneDialog.NewFileOpen(
 		func(uri fyne.URIReadCloser, err error) {
 			if err != nil {
 				logger.Error("文件对话框错误: %v", err)

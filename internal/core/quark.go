@@ -46,8 +46,8 @@ func (q *QuarkChecker) Check(urlStr string) Result {
 // 返回夸克网盘链接的前缀，用于在注册时识别
 //
 // 返回值:
-// - string: 夸克网盘链接的前缀，从配置中获取
-func (q *QuarkChecker) GetPrefix() string {
+// - []string: 夸克网盘链接的前缀数组，从配置中获取
+func (q *QuarkChecker) GetPrefix() []string {
 	return config.GetSupportedQuark()
 }
 

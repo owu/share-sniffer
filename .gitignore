@@ -8,6 +8,7 @@
 *.so
 *.dylib
 *.tar.xz
+*.apk
 bin/
 
 

@@ -44,8 +44,8 @@ func (q *TelecomChecker) Check(urlStr string) Result {
 // 返回电信云盘链接的前缀，用于在注册时识别
 //
 // 返回值:
-// - string: 电信云盘链接的前缀，从配置中获取
-func (q *TelecomChecker) GetPrefix() string {
+// - []string: 电信云盘链接的前缀数组，从配置中获取
+func (q *TelecomChecker) GetPrefix() []string {
 	return config.GetSupportedTelecom()
 }
 
@@ -274,39 +274,55 @@ func isHex(c byte) bool {
 // - string: 提取到的code参数值，可能已经解码
 // - error: 如果解析失败或找不到code参数，则返回错误
 func extractCodeFromURL(urlStr string) (string, string, error) {
-	// 解析URL以获取查询参数
-	parsedURL, err := url.Parse(urlStr)
-	if err != nil {
-		return "", "", fmt.Errorf("解析URL失败: %w", err)
-	}
+	// 定义支持的前缀
+	const webSharePrefix = "https://cloud.189.cn/web/share?code="
+	const tPrefix = "https://cloud.189.cn/t/"
 
-	// 从查询参数中获取code值
-	queryParams := parsedURL.Query()
-	codeValue := queryParams.Get("code")
+	var codeValue string
 
-	// 检查是否找到code参数
-	if codeValue == "" {
-		return "", "", fmt.Errorf("输入URL中未找到 'code' 查询参数")
-	}
+	// 检查URL属于哪种类型
+	if strings.HasPrefix(urlStr, webSharePrefix) {
+		// 类型1: https://cloud.189.cn/web/share?code=xxx
+		// 提取code值
+		codeValue = strings.TrimPrefix(urlStr, webSharePrefix)
 
-	// 检查code值是否包含编码特征且包含特殊字符，可能需要进一步解码
-	if isURLEncoded(codeValue) && containsSpecialChars(codeValue) {
-		decodedCode, err := url.QueryUnescape(codeValue)
-		if err == nil && decodedCode != codeValue {
-			return decodedCode, urlStr, nil
+		// 解析URL以获取查询参数
+		parsedURL, err := url.Parse(urlStr)
+		if err == nil {
+			queryParams := parsedURL.Query()
+			codeParam := queryParams.Get("code")
+			if codeParam != "" {
+				codeValue = codeParam
+			}
 		}
-	}
-
-	// 5. 处理Referer头 - 确保Referer设置正确以避免API拒绝请求
-	parsedInputURL, err := url.Parse(urlStr)
-	var refererValue string
-	if err == nil {
-		refererValue = parsedInputURL.String()
+	} else if strings.HasPrefix(urlStr, tPrefix) {
+		// 类型2: https://cloud.189.cn/t/xxx
+		// 提取t/后面的部分
+		codeValue = strings.TrimPrefix(urlStr, tPrefix)
 	} else {
-		refererValue = urlStr
+		return "", "", fmt.Errorf("不支持的电信云盘URL格式")
 	}
 
-	// 返回原始code值
+	// 检查是否找到code值
+	if codeValue == "" {
+		return "", "", fmt.Errorf("输入URL中未找到有效的code参数")
+	}
+
+	// 处理可能的访问码后缀，例如：xxx（访问码：yyy）或 xxx%EF%BC%88%E8%AE%BF%E9%97%AE%E7%A0%81%EF%BC%9Ayyy%EF%BC%89
+	// 这些访问码后缀在API调用中不需要，需要去除
+	if idx := strings.IndexAny(codeValue, "（%"); idx != -1 {
+		codeValue = codeValue[:idx]
+	}
+
+	// 对code值进行URL解码
+	decodedCode, err := url.QueryUnescape(codeValue)
+	if err == nil {
+		codeValue = decodedCode
+	}
+
+	// 设置Referer值
+	refererValue := urlStr
+
 	return codeValue, refererValue, nil
 }
 

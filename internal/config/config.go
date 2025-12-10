@@ -35,12 +35,11 @@ type Config struct {
 	// 支持的链接类型
 	SupportedLinkTypes struct {
 		AllLinks []string
-		Quark    string
-		Telecom  string
-		Telecom1 string
-		Baidu    string
-		AliPan   string
-		Yyw      string
+		Quark    []string
+		Telecom  []string
+		Baidu    []string
+		AliPan   []string
+		Yyw      []string
 	}
 }
 
@@ -74,26 +73,24 @@ func (q *Config) initDefault() {
 	q.CheckConfig.RetryInterval = 1 * time.Second // 减少重试间隔
 
 	// 应用信息默认配置
-	q.AppInfo.Version = "0.0.9"
+	q.AppInfo.Version = "0.1.0"
 	q.AppInfo.AppName = "Share Sniffer"
 	q.AppInfo.AppNameCN = "分享嗅探器"
 	q.AppInfo.ExpirationDate = 1798732799000 // 2026-12-31 23:59:59的时间戳 毫秒
 
-	q.SupportedLinkTypes.Quark = "https://pan.quark.cn/s/"
-	q.SupportedLinkTypes.Telecom = "https://cloud.189.cn/web/share?"
-	q.SupportedLinkTypes.Telecom1 = "https://cloud.189.cn/t/"
-	q.SupportedLinkTypes.Baidu = "https://pan.baidu.com/s/"
-	q.SupportedLinkTypes.AliPan = "https://www.alipan.com/s/"
-	q.SupportedLinkTypes.Yyw = "https://115cdn.com/s/"
+	q.SupportedLinkTypes.Quark = []string{"https://pan.quark.cn/s/"}
+	q.SupportedLinkTypes.Telecom = []string{"https://cloud.189.cn/web/share?", "https://cloud.189.cn/t/"}
+	q.SupportedLinkTypes.Baidu = []string{"https://pan.baidu.com/s/"}
+	q.SupportedLinkTypes.AliPan = []string{"https://www.alipan.com/s/"}
+	q.SupportedLinkTypes.Yyw = []string{"https://115cdn.com/s/"}
 
-	q.SupportedLinkTypes.AllLinks = []string{
-		q.SupportedLinkTypes.Quark,
-		q.SupportedLinkTypes.Telecom,
-		q.SupportedLinkTypes.Telecom1,
-		q.SupportedLinkTypes.Baidu,
-		q.SupportedLinkTypes.AliPan,
-		q.SupportedLinkTypes.Yyw,
-	}
+	// 收集所有支持的链接前缀
+	q.SupportedLinkTypes.AllLinks = []string{}
+	q.SupportedLinkTypes.AllLinks = append(q.SupportedLinkTypes.AllLinks, q.SupportedLinkTypes.Quark...)
+	q.SupportedLinkTypes.AllLinks = append(q.SupportedLinkTypes.AllLinks, q.SupportedLinkTypes.Telecom...)
+	q.SupportedLinkTypes.AllLinks = append(q.SupportedLinkTypes.AllLinks, q.SupportedLinkTypes.Baidu...)
+	q.SupportedLinkTypes.AllLinks = append(q.SupportedLinkTypes.AllLinks, q.SupportedLinkTypes.AliPan...)
+	q.SupportedLinkTypes.AllLinks = append(q.SupportedLinkTypes.AllLinks, q.SupportedLinkTypes.Yyw...)
 
 }
 
@@ -150,31 +147,26 @@ func GetSupportedLinks() []string {
 }
 
 // GetSupportedQuark 获取支持的夸克网盘链接前缀
-func GetSupportedQuark() string {
+func GetSupportedQuark() []string {
 	return GetConfig().SupportedLinkTypes.Quark
 }
 
 // GetSupportedTelecom 获取支持的电信云盘链接前缀
-func GetSupportedTelecom() string {
+func GetSupportedTelecom() []string {
 	return GetConfig().SupportedLinkTypes.Telecom
 }
 
-// GetSupportedTelecom1 获取支持的电信云盘链接前缀
-func GetSupportedTelecom1() string {
-	return GetConfig().SupportedLinkTypes.Telecom1
-}
-
 // GetSupportedBaidu 获取支持的百度网盘链接前缀
-func GetSupportedBaidu() string {
+func GetSupportedBaidu() []string {
 	return GetConfig().SupportedLinkTypes.Baidu
 }
 
 // GetSupportedAliPan 获取支持的阿里云盘链接前缀
-func GetSupportedAliPan() string {
+func GetSupportedAliPan() []string {
 	return GetConfig().SupportedLinkTypes.AliPan
 }
 
 // GetSupportedYyw 获取支持的115网盘链接前缀
-func GetSupportedYyw() string {
+func GetSupportedYyw() []string {
 	return GetConfig().SupportedLinkTypes.Yyw
 }
