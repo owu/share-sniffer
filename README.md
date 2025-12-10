@@ -195,15 +195,15 @@ Optionally move the executable file to the `C:\Windows\System32` directory
 
 ### 7.1 About Interface
 
-![about](https://github.com/owu/share-sniffer/raw/unstable/screenshot/about.jpg)
+![about](https://github.com/owu/share-sniffer/raw/unstable/screenshot/about.png)
 
 ### 7.2 Detection Interface
 
-![check](https://github.com/owu/share-sniffer/raw/unstable/screenshot/check.jpg)
+![check](https://github.com/owu/share-sniffer/raw/unstable/screenshot/check.png)
 
 ### 7.3 Result Interface
 
-![result](https://github.com/owu/share-sniffer/raw/unstable/screenshot/result.jpg)
+![result](https://github.com/owu/share-sniffer/raw/unstable/screenshot/result.png)
 
 ## 8. CLI Mode Tool Introduction
 
