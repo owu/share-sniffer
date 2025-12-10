@@ -13,8 +13,6 @@ func registerCheckers() {
 		RegisterChecker(&QuarkChecker{})
 		// 注册电信云盘检查器
 		RegisterChecker(&TelecomChecker{})
-		RegisterChecker(&Telecom1Checker{})
-		
 		// 注册百度网盘检查器
 		RegisterChecker(&BaiduChecker{})
 		// 注册阿里云盘检查器

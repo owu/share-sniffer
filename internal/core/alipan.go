@@ -52,8 +52,8 @@ func (q *AliPanChecker) Check(urlStr string) Result {
 // 返回阿里云盘链接的前缀，用于在注册时识别
 //
 // 返回值:
-// - string: 阿里云盘链接的前缀，从配置中获取
-func (q *AliPanChecker) GetPrefix() string {
+// - []string: 阿里云盘链接的前缀数组，从配置中获取
+func (q *AliPanChecker) GetPrefix() []string {
 	return config.GetSupportedAliPan()
 }
 

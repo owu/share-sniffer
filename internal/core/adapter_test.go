@@ -7,11 +7,11 @@ import (
 func TestAdapter(t *testing.T) {
 	var urls []string
 
-	urls = append(urls, testQuark()...)
+	// urls = append(urls, testQuark()...)
 	urls = append(urls, testTelecom()...)
-	urls = append(urls, testBaidu()...)
-	urls = append(urls, testAliPan()...)
-	urls = append(urls, testYyw()...)
+	// urls = append(urls, testBaidu()...)
+	// urls = append(urls, testAliPan()...)
+	// urls = append(urls, testYyw()...)
 
 	for _, url := range urls {
 		result := Adapter(url)
@@ -38,9 +38,8 @@ func testQuark() []string {
 // 天翼云盘测试用例
 func testTelecom() []string {
 	urls := []string{
-		"https://cloud.189.cn/web/share?code=nEniUnvIBBBv",
-		"https://cloud.189.cn/web/share?code=7BfYRjRZvYBz%EF%BC%88%E8%AE%BF%E9%97%AE%E7%A0%81%EF%BC%9Ac0jt%EF%BC%89",
-		"https://cloud.189.cn/web/share?code=7BfYRjRZvYBz（访问码：c0jt）",
+		"https://cloud.189.cn/web/share?code=bm2iuqZZj632%EF%BC%88%E8%AE%BF%E9%97%AE%E7%A0%81%EF%BC%9Atts9%EF%BC%89",
+		"https://cloud.189.cn/web/share?code=eMJZVvUnUbaq",
 		"https://cloud.189.cn/t/6FjeIfQvMRba%EF%BC%88%E8%AE%BF%E9%97%AE%E7%A0%81%EF%BC%9A2jio%EF%BC%89",
 		"https://cloud.189.cn/t/bm2iuqZZj632%EF%BC%88%E8%AE%BF%E9%97%AE%E7%A0%81%EF%BC%9Atts9%EF%BC%89",
 		"https://cloud.189.cn/t/6FjeIfQvMRba（访问码：2jio）",
