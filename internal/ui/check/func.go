@@ -57,7 +57,7 @@ func (l *headerLayout) MinSize(objects []fyne.CanvasObject) fyne.Size {
 // 创建表头容器
 func (q *CheckUI) createHeaderContainer() *fyne.Container {
 	// 定义列宽，需与dataTable.SetColumnWidth保持一致
-	colWidths := []float32{50, 300, 70, 70, 200}
+	colWidths := []float32{50, 400, 70, 70, 100}
 
 	// 创建布局
 	layout := &headerLayout{widths: colWidths}
@@ -148,7 +148,7 @@ func (q *CheckUI) createDataTable(tableData [][]string, mutex *sync.RWMutex) *co
 					// 特殊处理网址列（第1列）
 					if id.Col == 1 {
 						// 创建可点击的超链接
-						hyperlink := widget.NewHyperlink(utils.Substr(value, 36), nil)
+						hyperlink := widget.NewHyperlink(utils.Substr(value, 50, ""), nil)
 						// 设置左对齐
 						hyperlink.Alignment = fyne.TextAlignLeading
 						// 使用标准库解析URL
@@ -190,10 +190,10 @@ func (q *CheckUI) createDataTable(tableData [][]string, mutex *sync.RWMutex) *co
 
 	// 调整数据表格列宽
 	dataTable.SetColumnWidth(0, 50)  // 序号列
-	dataTable.SetColumnWidth(1, 300) // 网址列
+	dataTable.SetColumnWidth(1, 400) // 网址列
 	dataTable.SetColumnWidth(2, 70)  // 状态列
 	dataTable.SetColumnWidth(3, 70)  // 耗时列
-	dataTable.SetColumnWidth(4, 200) // 备注列
+	dataTable.SetColumnWidth(4, 100) // 备注列
 
 	// 创建可滚动的数据表格容器
 	dataTableContainer := container.NewScroll(dataTable)
@@ -223,7 +223,21 @@ func (q *CheckUI) updateTableDisplay(headerContainer *fyne.Container, dataTableC
 		logger.Debug("更新现有表格容器内容")
 		fyne.Do(func() {
 			logger.Debug("在GUI线程中更新表格内容")
-			q.resultTable.Objects = []fyne.CanvasObject{newTableContainer}
+			
+			// 检查当前容器是否是Stack布局（有水印）
+			_, isStack := q.resultTable.Objects[0].(*fyne.Container)
+			if isStack && len(q.resultTable.Objects[0].(*fyne.Container).Objects) > 1 {
+				// 如果是Stack布局且有水印，只更新表格部分
+				stackContainer := q.resultTable.Objects[0].(*fyne.Container)
+				// 替换Stack中的第二个元素（表格容器）
+				if len(stackContainer.Objects) >= 2 {
+					stackContainer.Objects[1] = newTableContainer
+					stackContainer.Refresh()
+				}
+			} else {
+				// 否则直接替换整个容器
+				q.resultTable.Objects = []fyne.CanvasObject{newTableContainer}
+			}
 			q.resultTable.Refresh()
 		})
 	} else {

@@ -8,6 +8,7 @@ import (
 
 	"github.com/owu/share-sniffer/internal/config"
 	"github.com/owu/share-sniffer/internal/core"
+	"github.com/owu/share-sniffer/internal/logger"
 	"github.com/spf13/cobra"
 )
 
@@ -45,7 +46,8 @@ var (
 			}
 
 			// 输出JSON结果
-			jsonBytes, _ := json.MarshalIndent(response, "", "  ")
+			//jsonBytes, _ := json.MarshalIndent(response, "", "  ")
+			jsonBytes, _ := json.Marshal(response)
 			fmt.Println(string(jsonBytes))
 		},
 	}
@@ -90,6 +92,10 @@ func init() {
 
 // Execute 执行命令行
 func Execute() {
+	// 设置日志级别为Fatal，这样只有致命错误会被记录（但会导致程序退出）
+	// 这样CLI模式下不会输出任何多余日志，只返回JSON结果
+	logger.SetLogLevel(logger.LevelFatal + 1)
+	
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)

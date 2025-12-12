@@ -79,7 +79,7 @@ func (q *BaiduChecker) checkBaidu(urlStr string) Result {
 	logger.Debug("\n1. 执行第一步请求...")
 	step1Result, err := step1Request(urlStr)
 	if err != nil {
-		logger.Warn("BaiduChecker:step1Request,%s,错误: %v\n", urlStr, err)
+		logger.Info("BaiduChecker:step1Request,%s,错误: %v\n", urlStr, err)
 		return Result{
 			Name:   "第一步请求失败",
 			Status: 0,
@@ -106,7 +106,7 @@ func (q *BaiduChecker) checkBaidu(urlStr string) Result {
 	logger.Debug("\n2. 执行第二步验证请求...")
 	step2Result, err := step2Request(step1Result, password)
 	if err != nil {
-		logger.Warn("BaiduChecker:step2Request,%s,错误: %v\n", urlStr, err)
+		logger.Info("BaiduChecker:step2Request,%s,错误: %v\n", urlStr, err)
 		return Result{
 			Name:   "第二步请求失败",
 			Status: 0,
@@ -124,7 +124,7 @@ func (q *BaiduChecker) checkBaidu(urlStr string) Result {
 	logger.Debug("\n3. 执行第三步文件列表请求...")
 	step3Result, err := step3Request(step1Result, step2Result)
 	if err != nil {
-		logger.Warn("BaiduChecker:step3Request,%s,错误: %v\n", urlStr, err)
+		logger.Info("BaiduChecker:step3Request,%s,错误: %v\n", urlStr, err)
 		return Result{
 			Name:   "第三步请求失败",
 			Status: 0,

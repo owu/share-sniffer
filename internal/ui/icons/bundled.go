@@ -15,18 +15,25 @@ var resourceAlipanPng = &fyne.StaticResource{
 	StaticContent: resourceAlipanPngData,
 }
 
-//go:embed assets/baidu.ico
-var resourceBaiduIcoData []byte
-var resourceBaiduIco = &fyne.StaticResource{
-	StaticName:    "assets/baidu.ico",
-	StaticContent: resourceBaiduIcoData,
+//go:embed assets/baidu.png
+var resourceBaiduPngData []byte
+var resourceBaiduPng = &fyne.StaticResource{
+	StaticName:    "assets/baidu.png",
+	StaticContent: resourceBaiduPngData,
 }
 
-//go:embed assets/ecloud.ico
-var resourceEcloudIcoData []byte
-var resourceEcloudIco = &fyne.StaticResource{
-	StaticName:    "assets/ecloud.ico",
-	StaticContent: resourceEcloudIcoData,
+//go:embed assets/bg.png
+var resourceBgPngData []byte
+var resourceBgPng = &fyne.StaticResource{
+	StaticName:    "assets/bg.png",
+	StaticContent: resourceBgPngData,
+}
+
+//go:embed assets/ecloud.png
+var resourceEcloudPngData []byte
+var resourceEcloudPng = &fyne.StaticResource{
+	StaticName:    "assets/ecloud.png",
+	StaticContent: resourceEcloudPngData,
 }
 
 //go:embed assets/logo.png
@@ -36,23 +43,44 @@ var resourceLogoPng = &fyne.StaticResource{
 	StaticContent: resourceLogoPngData,
 }
 
-//go:embed assets/quark.ico
-var resourceQuarkIcoData []byte
-var resourceQuarkIco = &fyne.StaticResource{
-	StaticName:    "assets/quark.ico",
-	StaticContent: resourceQuarkIcoData,
+//go:embed assets/quark.png
+var resourceQuarkPngData []byte
+var resourceQuarkPng = &fyne.StaticResource{
+	StaticName:    "assets/quark.png",
+	StaticContent: resourceQuarkPngData,
 }
 
-//go:embed assets/thunder.ico
-var resourceThunderIcoData []byte
-var resourceThunderIco = &fyne.StaticResource{
-	StaticName:    "assets/thunder.ico",
-	StaticContent: resourceThunderIcoData,
+//go:embed assets/thunder.png
+var resourceThunderPngData []byte
+var resourceThunderPng = &fyne.StaticResource{
+	StaticName:    "assets/thunder.png",
+	StaticContent: resourceThunderPngData,
 }
 
-//go:embed assets/yyw.ico
-var resourceYywIcoData []byte
-var resourceYywIco = &fyne.StaticResource{
-	StaticName:    "assets/yyw.ico",
-	StaticContent: resourceYywIcoData,
+//go:embed assets/uc.png
+var resourceUcPngData []byte
+var resourceUcPng = &fyne.StaticResource{
+	StaticName:    "assets/uc.png",
+	StaticContent: resourceUcPngData,
+}
+
+//go:embed assets/yd.png
+var resourceYdPngData []byte
+var resourceYdPng = &fyne.StaticResource{
+	StaticName:    "assets/yd.png",
+	StaticContent: resourceYdPngData,
+}
+
+//go:embed assets/yes.png
+var resourceYesPngData []byte
+var resourceYesPng = &fyne.StaticResource{
+	StaticName:    "assets/yes.png",
+	StaticContent: resourceYesPngData,
+}
+
+//go:embed assets/yyw.png
+var resourceYywPngData []byte
+var resourceYywPng = &fyne.StaticResource{
+	StaticName:    "assets/yyw.png",
+	StaticContent: resourceYywPngData,
 }

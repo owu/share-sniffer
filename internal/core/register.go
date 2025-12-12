@@ -19,5 +19,9 @@ func registerCheckers() {
 		RegisterChecker(&AliPanChecker{})
 		// 注册115网盘检查器
 		RegisterChecker(&YywChecker{})
+		// 注册123网盘检查器
+		RegisterChecker(&YesChecker{})
+		// 注册UC网盘检查器
+		RegisterChecker(&UcChecker{})
 	})
 }
