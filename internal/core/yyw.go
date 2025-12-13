@@ -69,7 +69,7 @@ func (q *YywChecker) checkYyw(urlStr string) Result {
 	// 提取参数
 	shareCode, receiveCode, err := extractParams(urlStr)
 	if err != nil || shareCode == "" || receiveCode == "" {
-		logger.Warn("YywChecker:extractParams,%s,错误: %v\n", urlStr, err)
+		logger.Info("YywChecker:extractParams,%s,错误: %v\n", urlStr, err)
 		return Result{
 			Name:   "链接格式无效",
 			Status: 0,
@@ -85,13 +85,13 @@ func (q *YywChecker) checkYyw(urlStr string) Result {
 	if err != nil {
 		// 判断错误类型 - 区分超时错误和其他错误
 		if errors.IsTimeoutError(err) {
-			logger.Warn("YywChecker:请求超时: %s, 请求耗时: %dms", urlStr, requestElapsed)
+			logger.Info("YywChecker:请求超时: %s, 请求耗时: %dms", urlStr, requestElapsed)
 			return Result{
 				Name:   "请求超时",
 				Status: -1,
 			}
 		}
-		logger.Warn("YywChecker:检测失败: %s, 错误: %v, 请求耗时: %dms", urlStr, err, requestElapsed)
+		logger.Info("YywChecker:检测失败: %s, 错误: %v, 请求耗时: %dms", urlStr, err, requestElapsed)
 		return Result{
 			Name:   "检测失败: " + err.Error(),
 			Status: 0,
@@ -129,7 +129,7 @@ func yywRequest(ctx context.Context, shareCode, receiveCode string) (*yywResp, e
 	// 创建请求
 	req, err := http.NewRequest("GET", apiURL, nil)
 	if err != nil {
-		logger.Error("创建请求失败: %v", err)
+		logger.Warn("创建请求失败: %v", err)
 		return nil, fmt.Errorf("创建请求失败: %v", err)
 	}
 
@@ -176,7 +176,7 @@ func yywRequest(ctx context.Context, shareCode, receiveCode string) (*yywResp, e
 	// 解析JSON响应
 	var response yywResp
 	if err = json.Unmarshal(body, &response); err != nil {
-		logger.Warn("解析JSON失败: %v, 响应体: %s", err, string(body[:min(100, len(body))]))
+		logger.Info("解析JSON失败: %v, 响应体: %s", err, string(body[:min(100, len(body))]))
 		return nil, fmt.Errorf("解析JSON失败: %v", err)
 	}
 

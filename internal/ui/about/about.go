@@ -29,7 +29,7 @@ func NewAboutTab() *container.TabItem {
 
 	aboutImage := canvas.NewImageFromResource(icons.LogoTransparent)
 	aboutImage.FillMode = canvas.ImageFillContain
-	aboutImage.SetMinSize(fyne.NewSize(40, 40))
+	aboutImage.SetMinSize(fyne.NewSize(24, 24))
 
 	header := container.NewHBox(
 		container.NewVBox(
@@ -60,7 +60,7 @@ func NewAboutTab() *container.TabItem {
 	)
 
 	note := widget.NewLabelWithStyle(
-		"功能说明：该工具可以批量检测多种网盘分享链接是否过期",
+		"功能说明：可批量检测多种网盘分享链接是否过期，同时也提供了cli工具供服务端调用",
 		fyne.TextAlignLeading, fyne.TextStyle{Italic: true},
 	)
 
@@ -90,6 +90,18 @@ func NewAboutTab() *container.TabItem {
 	yywImage.FillMode = canvas.ImageFillContain
 	yywImage.SetMinSize(fyne.NewSize(40, 40))
 
+	yesImage := canvas.NewImageFromResource(icons.LogoYes)
+	yesImage.FillMode = canvas.ImageFillContain
+	yesImage.SetMinSize(fyne.NewSize(40, 40))
+
+	ucImage := canvas.NewImageFromResource(icons.LogoUc)
+	ucImage.FillMode = canvas.ImageFillContain
+	ucImage.SetMinSize(fyne.NewSize(40, 40))
+
+	ydImage := canvas.NewImageFromResource(icons.LogoYd)
+	ydImage.FillMode = canvas.ImageFillContain
+	ydImage.SetMinSize(fyne.NewSize(40, 40))
+
 	features := []struct {
 		icon  fyne.Resource
 		title string
@@ -100,10 +112,11 @@ func NewAboutTab() *container.TabItem {
 		{baiduImage.Resource, "百度网盘", fmt.Sprintf("%s*", config.GetSupportedBaidu())},
 		{alipanImage.Resource, "阿里云盘", fmt.Sprintf("%s*", config.GetSupportedAliPan())},
 		{yywImage.Resource, "115网盘", fmt.Sprintf("%s*", config.GetSupportedYyw())},
+		{yesImage.Resource, "123网盘", fmt.Sprintf("%s*", config.GetSupportedYes())},
+		{ucImage.Resource, "UC网盘", fmt.Sprintf("%s*", config.GetSupportedUc())},
 		{thunderImage.Resource, "迅雷云盘", "TODO"},
-		{theme.QuestionIcon(), "移动云盘", "TODO"},
-		{theme.QuestionIcon(), "123网盘", "TODO"},
-		{theme.QuestionIcon(), "UC网盘", "TODO"},
+		{ydImage.Resource, "移动云盘", "TODO"},
+		{theme.QuestionIcon(), "TODO", "TODO"},
 	}
 
 	// 将features切片按每2个元素一组进行分组

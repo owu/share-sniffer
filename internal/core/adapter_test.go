@@ -8,10 +8,12 @@ func TestAdapter(t *testing.T) {
 	var urls []string
 
 	// urls = append(urls, testQuark()...)
-	urls = append(urls, testTelecom()...)
+	// urls = append(urls, testTelecom()...)
 	// urls = append(urls, testBaidu()...)
 	// urls = append(urls, testAliPan()...)
 	// urls = append(urls, testYyw()...)
+	urls = append(urls, testYes()...)
+	urls = append(urls, testUc()...)
 
 	for _, url := range urls {
 		result := Adapter(url)
@@ -79,6 +81,28 @@ func testYyw() []string {
 		"https://115cdn.com/s/swwcv883zv8?password=e402&#",
 		"https://115cdn.com/s/swwcvss3ffc?password=q685#",
 		"https://115cdn.com/s/sww0nyf3zv8?password=n865&#",
+	}
+	return urls
+}
+
+// 123网盘测试用例
+func testYes() []string {
+	urls := []string{
+		"https://www.123684.com/s/oec7Vv-99YWh?pwd=ZY4K",
+		"https://www.123865.com/s/TcMcTd-SQWJ?pwd=sh7P",
+		"https://www.123865.com/s/u9izjv-4WSWv?pwd=hscP#",
+	}
+	return urls
+}
+
+// UC网盘测试用例
+func testUc() []string {
+	urls := []string{
+		"https://drive.uc.cn/s/d60d722172f84?public=1",
+		"https://drive.uc.cn/s/1445a14498904?public=1#/list/share",
+		"https://drive.uc.cn/s/17c795bb346c4",
+		"https://drive.uc.cn/s/34349c96a9994?public=1#/list/share",
+		"https://drive.uc.cn/s/6bd9694d0f0b4",
 	}
 	return urls
 }

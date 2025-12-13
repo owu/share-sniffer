@@ -14,6 +14,8 @@ Share Sniffer is a cross-platform cloud storage sharing link detection tool that
 - ✅ Baidu Cloud
 - ✅ Alibaba Cloud
 - ✅ 115 Cloud
+- ✅ 123 Cloud 
+- ✅ UC Cloud
 
 ## 2. Origin
 
@@ -38,6 +40,10 @@ go mod tidy
 
 # Run GUI application
 go run ./launcher/gui/main.go
+
+# Run the GUI application while simultaneously printing all the detailed commands executed during the compilation and linking process.
+go clean -cache  && go clean -modcache && go run -x ./launcher/gui/main.go
+
 ```
 
 #### 4.1.2 Development Mode
@@ -200,6 +206,10 @@ Optionally move the executable file to the `C:\Windows\System32` directory
 ### 7.2 Detection Interface
 
 ![check](https://github.com/owu/share-sniffer/raw/unstable/screenshot/check.png)
+
+![open](https://github.com/owu/share-sniffer/raw/unstable/screenshot/open.png)
+
+![load](https://github.com/owu/share-sniffer/raw/unstable/screenshot/load.png)
 
 ### 7.3 Result Interface
 

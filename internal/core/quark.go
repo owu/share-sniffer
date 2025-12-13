@@ -88,7 +88,7 @@ func (q *QuarkChecker) checkQuark(urlStr string) Result {
 	// 提取资源ID和密码 - 解析URL中的关键参数
 	resourceID, passCode, err := extractParamsQuark(urlStr)
 	if err != nil {
-		logger.Warn("QuarkChecker:extractParamsQuark,%s,错误: %v\n", urlStr, err)
+		logger.Info("QuarkChecker:extractParamsQuark,%s,错误: %v\n", urlStr, err)
 		return Result{
 			Name:   "链接格式无效",
 			Status: 0,
@@ -104,13 +104,13 @@ func (q *QuarkChecker) checkQuark(urlStr string) Result {
 	if err != nil {
 		// 判断错误类型 - 区分超时错误和其他错误
 		if errors.IsTimeoutError(err) {
-			logger.Warn("QuarkChecker:请求超时: %s, 请求耗时: %dms", urlStr, requestElapsed)
+			logger.Info("QuarkChecker:请求超时: %s, 请求耗时: %dms", urlStr, requestElapsed)
 			return Result{
 				Name:   "请求超时",
 				Status: -1,
 			}
 		}
-		logger.Warn("QuarkChecker:检测失败: %s, 错误: %v, 耗时: %dms", urlStr, err, requestElapsed)
+		logger.Info("QuarkChecker:检测失败: %s, 错误: %v, 耗时: %dms", urlStr, err, requestElapsed)
 		return Result{
 			Name:   "检测失败: " + err.Error(),
 			Status: 0,
@@ -119,7 +119,7 @@ func (q *QuarkChecker) checkQuark(urlStr string) Result {
 
 	// 检查API响应状态 - 验证业务层面的成功
 	if response.Status != 200 || response.Code != 0 {
-		logger.Warn("分享链接失效: %s, 状态码: %d, 错误码: %d", urlStr, response.Status, response.Code)
+		logger.Info("分享链接失效: %s, 状态码: %d, 错误码: %d", urlStr, response.Status, response.Code)
 		return Result{
 			Name:   "分享链接失效或不存在",
 			Status: 0,
@@ -159,14 +159,14 @@ func quarkRequest(ctx context.Context, resourceID string, passCode string) (*qua
 	// 序列化请求体为JSON
 	jsonBody, err := json.Marshal(requestBody)
 	if err != nil {
-		logger.Error("构造请求体失败: %v", err)
+		logger.Warn("构造请求体失败: %v", err)
 		return nil, errors.NewRequestError("构造请求体失败", err)
 	}
 
 	// 创建HTTP请求 - 使用WithContext确保请求可以被超时控制
 	req, err := http.NewRequestWithContext(ctx, "POST", apiURL, bytes.NewBuffer(jsonBody))
 	if err != nil {
-		logger.Error("创建请求失败: %v", err)
+		logger.Warn("创建请求失败: %v", err)
 		return nil, errors.NewRequestError("创建请求失败", err)
 	}
 
@@ -203,7 +203,7 @@ func quarkRequest(ctx context.Context, resourceID string, passCode string) (*qua
 	var response quarkResp
 	if err = json.Unmarshal(body, &response); err != nil {
 		// 仅打印部分响应体用于调试，避免日志过大
-		logger.Warn("解析JSON失败: %v, 响应体: %s", err, string(body[:min(100, len(body))]))
+		logger.Info("解析JSON失败: %v, 响应体: %s", err, string(body[:min(100, len(body))]))
 		return nil, errors.NewParseError("解析JSON失败", err)
 	}
 

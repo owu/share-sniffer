@@ -18,6 +18,7 @@ import (
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 	"github.com/owu/share-sniffer/internal/logger"
+	"github.com/owu/share-sniffer/internal/ui/icons"
 	"github.com/owu/share-sniffer/internal/ui/state"
 )
 
@@ -92,7 +93,22 @@ func (q *CheckUI) createTab() *container.TabItem {
 	// 设置最小高度确保表格有足够的显示空间
 	tableContainer := container.NewScroll(createEmptyTable())
 	tableContainer.SetMinSize(fyne.NewSize(0, 400)) // 设置最小高度
-	q.resultTable = container.NewPadded(tableContainer)
+
+	// 加载水印图片
+	bg := loadBg()
+
+	// 如果水印图片加载成功，使用Stack布局将水印放在表格下方
+	if bg != nil {
+		// 创建Stack布局，水印放在底层，表格放在上层
+		stackContainer := container.NewStack(
+			bg,
+			tableContainer,
+		)
+		q.resultTable = container.NewPadded(stackContainer)
+	} else {
+		// 如果水印图片加载失败，使用默认布局
+		q.resultTable = container.NewPadded(tableContainer)
+	}
 
 	// 使用BorderLayout让表格占满剩余空间
 	content := container.NewBorder(
@@ -119,6 +135,21 @@ func createEmptyTable() *widget.Table {
 		func(id widget.TableCellID, obj fyne.CanvasObject) {},
 	)
 	return table
+}
+
+// 加载水印图片
+func loadBg() *canvas.Image {
+	// 使用内嵌资源加载水印图片
+	bg := canvas.NewImageFromResource(icons.LogoBg)
+	if bg == nil {
+		logger.Error("加载水印图片失败")
+		return nil
+	}
+
+	// 设置图片属性
+	bg.FillMode = canvas.ImageFillContain // 保持比例填充
+
+	return bg
 }
 
 // 基于 Fyne 原生对话框的提供者（用于Android平台）

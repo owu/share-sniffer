@@ -40,6 +40,8 @@ type Config struct {
 		Baidu    []string
 		AliPan   []string
 		Yyw      []string
+		Yes      []string
+		Uc       []string
 	}
 }
 
@@ -73,7 +75,7 @@ func (q *Config) initDefault() {
 	q.CheckConfig.RetryInterval = 1 * time.Second // 减少重试间隔
 
 	// 应用信息默认配置
-	q.AppInfo.Version = "0.1.0"
+	q.AppInfo.Version = "0.1.1"
 	q.AppInfo.AppName = "Share Sniffer"
 	q.AppInfo.AppNameCN = "分享嗅探器"
 	q.AppInfo.ExpirationDate = 1798732799000 // 2026-12-31 23:59:59的时间戳 毫秒
@@ -83,6 +85,8 @@ func (q *Config) initDefault() {
 	q.SupportedLinkTypes.Baidu = []string{"https://pan.baidu.com/s/"}
 	q.SupportedLinkTypes.AliPan = []string{"https://www.alipan.com/s/"}
 	q.SupportedLinkTypes.Yyw = []string{"https://115cdn.com/s/"}
+	q.SupportedLinkTypes.Yes = []string{"https://www.123684.com/s/", "https://www.123865.com/s/"}
+	q.SupportedLinkTypes.Uc = []string{"https://drive.uc.cn/s/"}
 
 	// 收集所有支持的链接前缀
 	q.SupportedLinkTypes.AllLinks = []string{}
@@ -91,6 +95,8 @@ func (q *Config) initDefault() {
 	q.SupportedLinkTypes.AllLinks = append(q.SupportedLinkTypes.AllLinks, q.SupportedLinkTypes.Baidu...)
 	q.SupportedLinkTypes.AllLinks = append(q.SupportedLinkTypes.AllLinks, q.SupportedLinkTypes.AliPan...)
 	q.SupportedLinkTypes.AllLinks = append(q.SupportedLinkTypes.AllLinks, q.SupportedLinkTypes.Yyw...)
+	q.SupportedLinkTypes.AllLinks = append(q.SupportedLinkTypes.AllLinks, q.SupportedLinkTypes.Yes...)
+	q.SupportedLinkTypes.AllLinks = append(q.SupportedLinkTypes.AllLinks, q.SupportedLinkTypes.Uc...)
 
 }
 
@@ -169,4 +175,14 @@ func GetSupportedAliPan() []string {
 // GetSupportedYyw 获取支持的115网盘链接前缀
 func GetSupportedYyw() []string {
 	return GetConfig().SupportedLinkTypes.Yyw
+}
+
+// GetSupportedYes 获取支持的123网盘链接前缀
+func GetSupportedYes() []string {
+	return GetConfig().SupportedLinkTypes.Yes
+}
+
+// GetSupportedUc 获取支持的UC网盘链接前缀
+func GetSupportedUc() []string {
+	return GetConfig().SupportedLinkTypes.Uc
 }
