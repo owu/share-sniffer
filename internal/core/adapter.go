@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/owu/share-sniffer/internal/utils"
+	"share-sniffer/internal/utils"
 )
 
 // Adapter 适配器函数，根据URL前缀调用对应的检查器

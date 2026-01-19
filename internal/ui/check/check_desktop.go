@@ -11,8 +11,8 @@ import (
 	"fyne.io/fyne/v2/container"
 	fyneDialog "fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
-	"github.com/owu/share-sniffer/internal/logger"
 	sqweekDialog "github.com/sqweek/dialog"
+	"share-sniffer/internal/logger"
 )
 
 // 基于 fyneDialog 的桌面端对话框提供者

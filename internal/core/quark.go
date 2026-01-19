@@ -18,11 +18,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/owu/share-sniffer/internal/config"
-	"github.com/owu/share-sniffer/internal/errors"
-	apphttp "github.com/owu/share-sniffer/internal/http"
-	"github.com/owu/share-sniffer/internal/logger"
-	"github.com/owu/share-sniffer/internal/utils"
+	"share-sniffer/internal/config"
+	"share-sniffer/internal/errors"
+	apphttp "share-sniffer/internal/http"
+	"share-sniffer/internal/logger"
+	"share-sniffer/internal/utils"
 )
 
 // QuarkChecker 夸克网盘链接检查器

@@ -10,12 +10,12 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
-	"github.com/owu/share-sniffer/internal/config"
-	"github.com/owu/share-sniffer/internal/logger"
-	"github.com/owu/share-sniffer/internal/ui/about"
-	"github.com/owu/share-sniffer/internal/ui/check"
-	"github.com/owu/share-sniffer/internal/ui/state"
-	"github.com/owu/share-sniffer/internal/utils"
+	"share-sniffer/internal/config"
+	"share-sniffer/internal/logger"
+	"share-sniffer/internal/ui/about"
+	"share-sniffer/internal/ui/check"
+	"share-sniffer/internal/ui/state"
+	"share-sniffer/internal/utils"
 )
 
 // ShareSnifferApp 是应用程序的主结构

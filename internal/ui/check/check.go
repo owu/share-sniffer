@@ -17,10 +17,10 @@ import (
 	"fyne.io/fyne/v2/storage"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
-	"github.com/owu/share-sniffer/internal/logger"
-	"github.com/owu/share-sniffer/internal/ui/icons"
-	"github.com/owu/share-sniffer/internal/ui/state"
-	"github.com/owu/share-sniffer/internal/utils"
+	"share-sniffer/internal/logger"
+	"share-sniffer/internal/ui/icons"
+	"share-sniffer/internal/ui/state"
+	"share-sniffer/internal/utils"
 )
 
 // DialogProvider 是对话框功能的抽象接口

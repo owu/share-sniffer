@@ -14,8 +14,8 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
-	"github.com/owu/share-sniffer/internal/config"
-	"github.com/owu/share-sniffer/internal/logger"
+	"share-sniffer/internal/config"
+	"share-sniffer/internal/logger"
 )
 
 // StaticConfigResponse 远程配置文件响应结构体
@@ -150,7 +150,7 @@ func CheckUpdate(window fyne.Window, clicked bool) {
 
 		// 读取当前版本号
 		currentVersion := config.Version()
-		
+
 		// 比对版本
 		hasUpdate, err := compareVersion(currentVersion, remoteConfig.Latest)
 		if err != nil {

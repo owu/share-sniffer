@@ -15,12 +15,12 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/storage"
 	"fyne.io/fyne/v2/widget"
-	"github.com/owu/share-sniffer/internal/config"
-	"github.com/owu/share-sniffer/internal/core"
-	"github.com/owu/share-sniffer/internal/logger"
-	"github.com/owu/share-sniffer/internal/utils"
-	"github.com/owu/share-sniffer/internal/workerpool"
 	"github.com/samber/lo"
+	"share-sniffer/internal/config"
+	"share-sniffer/internal/core"
+	"share-sniffer/internal/logger"
+	"share-sniffer/internal/utils"
+	"share-sniffer/internal/workerpool"
 )
 
 // taskResult 表示检测任务的结果

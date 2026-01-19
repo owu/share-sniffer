@@ -1,8 +1,8 @@
 package app
 
 import (
-	"github.com/owu/share-sniffer/internal/config"
-	"github.com/owu/share-sniffer/internal/logger"
+	"share-sniffer/internal/config"
+	"share-sniffer/internal/logger"
 )
 
 // 它执行以下操作：

@@ -1,7 +1,7 @@
 package core
 
 import (
-	"github.com/owu/share-sniffer/internal/utils"
+	"share-sniffer/internal/utils"
 )
 
 // 初始化检查器

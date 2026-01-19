@@ -6,8 +6,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/owu/share-sniffer/internal/config"
-	"github.com/owu/share-sniffer/internal/logger"
+	"share-sniffer/internal/config"
+	"share-sniffer/internal/logger"
 )
 
 // Task 表示一个工作任务
@@ -24,15 +24,15 @@ type Result struct {
 
 // WorkerPool 工作池结构
 type WorkerPool struct {
-	workers           int
-	queueSize         int
-	taskQueue         chan Task
-	resultChan        chan Result
-	wg                sync.WaitGroup
-	ctx               context.Context
-	cancel            context.CancelFunc
+	workers    int
+	queueSize  int
+	taskQueue  chan Task
+	resultChan chan Result
+	wg         sync.WaitGroup
+	ctx        context.Context
+	cancel     context.CancelFunc
 	// 长耗时任务并发控制
-	longTaskSemaphore   chan struct{}
+	longTaskSemaphore chan struct{}
 	maxLongConcurrent int
 }
 
@@ -44,19 +44,19 @@ func NewWorkerPool() *WorkerPool {
 	// 保持结果通道容量适中，避免内存占用过高
 	queueSize := 10000     // 足够处理最多9999个链接
 	resultQueueSize := 100 // 结果通道保持合理容量
-	
+
 	// 长耗时任务并发控制
 	maxLongConcurrent := config.GetLongMaxConcurrent()
 
 	ctx, cancel := context.WithCancel(context.Background())
 	pool := &WorkerPool{
-		workers:             workers,
-		queueSize:           queueSize,
-		taskQueue:           make(chan Task, queueSize),
-		resultChan:          make(chan Result, resultQueueSize),
-		ctx:                 ctx,
-		cancel:              cancel,
-		longTaskSemaphore:     make(chan struct{}, maxLongConcurrent),
+		workers:           workers,
+		queueSize:         queueSize,
+		taskQueue:         make(chan Task, queueSize),
+		resultChan:        make(chan Result, resultQueueSize),
+		ctx:               ctx,
+		cancel:            cancel,
+		longTaskSemaphore: make(chan struct{}, maxLongConcurrent),
 		maxLongConcurrent: maxLongConcurrent,
 	}
 
@@ -93,42 +93,42 @@ func (q *WorkerPool) worker(id int) {
 			}
 
 			logger.Debug("工作协程 %d 收到任务: %s", id, task.URL)
-			
+
 			// 判断是否为长耗时任务（迅雷和139云盘链接）
-	isLongTask := false
-	for _, prefix := range config.GetSupportedXunlei() {
-		if strings.HasPrefix(task.URL, prefix) {
-			isLongTask = true
-			break
-		}
-	}
-	// 检查是否为139云盘链接
-	if !isLongTask {
-		for _, prefix := range config.GetSupportedYd() {
-			if strings.HasPrefix(task.URL, prefix) {
-				isLongTask = true
-				break
+			isLongTask := false
+			for _, prefix := range config.GetSupportedXunlei() {
+				if strings.HasPrefix(task.URL, prefix) {
+					isLongTask = true
+					break
+				}
 			}
-		}
-	}
-		
-		// 为每个任务创建带超时的context，直接使用工作池上下文，不创建新的超时
-		taskCtx := q.ctx
-		if isLongTask {
-			// 使用信号量控制长耗时任务并发数
-			logger.Debug("尝试获取长耗时任务并发信号量，当前信号量队列长度: %d/%d", len(q.longTaskSemaphore), cap(q.longTaskSemaphore))
-			
-			// 等待获取信号量，这里会阻塞直到有可用资源
-			q.longTaskSemaphore <- struct{}{}
-			logger.Debug("成功获取长耗时任务并发信号量，当前信号量队列长度: %d/%d", len(q.longTaskSemaphore), cap(q.longTaskSemaphore))
-			
-			// 执行任务
-			result := q.executeTask(taskCtx, task)
-			
-			// 释放信号量
-			<-q.longTaskSemaphore
-			logger.Debug("释放长耗时任务并发信号量，当前信号量队列长度: %d/%d", len(q.longTaskSemaphore), cap(q.longTaskSemaphore))
-				
+			// 检查是否为139云盘链接
+			if !isLongTask {
+				for _, prefix := range config.GetSupportedYd() {
+					if strings.HasPrefix(task.URL, prefix) {
+						isLongTask = true
+						break
+					}
+				}
+			}
+
+			// 为每个任务创建带超时的context，直接使用工作池上下文，不创建新的超时
+			taskCtx := q.ctx
+			if isLongTask {
+				// 使用信号量控制长耗时任务并发数
+				logger.Debug("尝试获取长耗时任务并发信号量，当前信号量队列长度: %d/%d", len(q.longTaskSemaphore), cap(q.longTaskSemaphore))
+
+				// 等待获取信号量，这里会阻塞直到有可用资源
+				q.longTaskSemaphore <- struct{}{}
+				logger.Debug("成功获取长耗时任务并发信号量，当前信号量队列长度: %d/%d", len(q.longTaskSemaphore), cap(q.longTaskSemaphore))
+
+				// 执行任务
+				result := q.executeTask(taskCtx, task)
+
+				// 释放信号量
+				<-q.longTaskSemaphore
+				logger.Debug("释放长耗时任务并发信号量，当前信号量队列长度: %d/%d", len(q.longTaskSemaphore), cap(q.longTaskSemaphore))
+
 				// 发送结果，即使上下文已取消也要尝试发送
 				select {
 				case q.resultChan <- result:

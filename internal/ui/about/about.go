@@ -10,10 +10,10 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
-	"github.com/owu/share-sniffer/internal/config"
-	"github.com/owu/share-sniffer/internal/ui/icons"
-	"github.com/owu/share-sniffer/internal/utils"
 	"github.com/samber/lo"
+	"share-sniffer/internal/config"
+	"share-sniffer/internal/ui/icons"
+	"share-sniffer/internal/utils"
 
 	"image/color"
 )

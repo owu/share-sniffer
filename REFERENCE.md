@@ -14,14 +14,18 @@ Share Sniffer（分享嗅探器）是一款跨平台的网盘分享链接检测�
 - ✅ 123云盘
 - ✅ UC网盘
 - ✅ 迅雷云盘
+- ✅ 移动云盘(139云盘)
 
 ### 1.2 技术栈
 
 - **开发语言**：Go 1.25
-- **GUI框架**：[fyne.io/fyne/v2](https://fyne.io/) - 跨平台GUI框架
+- **GUI框架**：[fyne.io/fyne/v2](https://fyne.io/) - 跨平台GUI框架，支持Android平台
 - **CLI框架**：[github.com/spf13/cobra](https://github.com/spf13/cobra) - 命令行框架
 - **HTTP客户端**：自定义封装的HTTP客户端，支持重试和超时控制
 - **并发模型**：工作池（WorkerPool）模式，支持并发任务处理
+- **浏览器自动化**：[chromedp](https://github.com/chromedp/chromedp) - 用于动态页面内容提取
+- **对话框库**：[sqweek/dialog](https://github.com/sqweek/dialog) - 桌面端文件选择对话框
+- **日志系统**：自定义日志框架，支持多级别日志输出
 
 ## 2. 项目结构
 
@@ -57,7 +61,32 @@ share-sniffer/
 
 ## 3. 核心模块设计
 
-### 3.1 配置管理（config）
+### 3.1 应用程序架构（app）
+
+应用程序模块采用分层架构设计，实现了GUI和CLI的统一启动入口。主要包含以下组件：
+
+#### 3.1.1 ShareSnifferApp结构体
+```go
+type ShareSnifferApp struct {
+    app    fyne.App      // Fyne应用实例
+    window fyne.Window   // 主窗口
+    state  *state.AppState // 应用状态
+}
+```
+
+#### 3.1.2 应用启动流程
+1. **配置初始化**：从全局配置单例获取应用配置
+2. **Fyne应用创建**：使用`app.NewWithID()`创建应用实例
+3. **窗口配置**：设置窗口大小、位置和标题
+4. **UI内容创建**：构建标签页界面（检查页和关于页）
+5. **后台任务启动**：时间同步和版本检查
+6. **事件循环启动**：显示窗口并进入主事件循环
+
+#### 3.1.3 平台适配
+- **桌面平台**：使用sqweek/dialog提供原生文件选择对话框
+- **Android平台**：使用Fyne原生对话框，避免调用桌面专用API
+
+### 3.2 配置管理（config）
 
 配置管理模块采用单例模式实现，提供全局配置访问。配置包含HTTP客户端配置、检测配置、应用信息和支持的链接类型等。
 
@@ -296,41 +325,149 @@ var (
 
 ### 6.1 添加新的网盘检查器
 
-1. 创建新的检查器结构体，实现LinkChecker接口
+#### 6.1.1 基于HTTP API的检查器实现示例（以115网盘为例）
 
 ```go
-// NewPanChecker 新网盘链接检查器
-type NewPanChecker struct{}
+// YywChecker 115网盘链接检查器
+type YywChecker struct{}
 
 // Check 实现LinkChecker接口的Check方法
-func (c *NewPanChecker) Check(ctx context.Context, urlStr string) utils.Result {
-    // 实现新网盘的检查逻辑
+func (y *YywChecker) Check(ctx context.Context, urlStr string) utils.Result {
+    return y.checkYyw(ctx, urlStr)
 }
 
 // GetPrefix 实现LinkChecker接口的GetPrefix方法
-func (c *NewPanChecker) GetPrefix() []string {
-    return []string{"https://new.pan.example.com/s/"}
+func (y *YywChecker) GetPrefix() []string {
+    return config.GetSupportedYyw()
+}
+
+// checkYyw 115网盘核心检测逻辑
+func (y *YywChecker) checkYyw(ctx context.Context, urlStr string) utils.Result {
+    // 1. URL格式验证和参数提取
+    parsedURL, err := url.ParseRequestURI(urlStr)
+    if err != nil {
+        return utils.ErrorMalformed(urlStr, "链接格式无效")
+    }
+    
+    // 2. 提取分享码和访问密码
+    shareCode := extractShareCode(parsedURL.Path)
+    
+    // 3. 构建API请求
+    apiURL := "https://webapi.115.com/share/snap"
+    params := url.Values{
+        "share_code": {shareCode},
+        "user_id":    {"0"},
+    }
+    
+    // 4. 发送HTTP请求
+    client := apphttp.NewClient()
+    resp, err := client.Get(ctx, apiURL+"?"+params.Encode())
+    if err != nil {
+        return utils.ErrorFatal("网络请求失败: " + err.Error())
+    }
+    defer resp.Body.Close()
+    
+    // 5. 解析API响应
+    var result map[string]interface{}
+    if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+        return utils.ErrorFatal("响应解析失败: " + err.Error())
+    }
+    
+    // 6. 处理检测结果
+    if code, ok := result["state"].(float64); ok && code == 0 {
+        return utils.Success(urlStr, "分享有效", time.Since(requestStart))
+    } else {
+        return utils.ErrorExpired(urlStr, "分享已失效")
+    }
 }
 ```
 
-2. 在配置中添加新网盘的支持
+#### 6.1.2 基于浏览器自动化的检查器实现示例（以移动云盘为例）
 
 ```go
-// 在config.go的SupportedLinkTypes结构体中添加
-NewPan []string
+// YdChecker 移动云盘(139云盘)链接检查器
+type YdChecker struct{}
 
-// 在initDefault方法中初始化
-b.SupportedLinkTypes.NewPan = []string{"https://new.pan.example.com/s/"}
+// Check 实现LinkChecker接口的Check方法
+func (y *YdChecker) Check(ctx context.Context, urlStr string) utils.Result {
+    return y.checkYd(ctx, urlStr)
+}
 
-// 在AllLinks中添加
-b.SupportedLinkTypes.AllLinks = append(b.SupportedLinkTypes.AllLinks, b.SupportedLinkTypes.NewPan...)
+// GetPrefix 实现LinkChecker接口的GetPrefix方法
+func (y *YdChecker) GetPrefix() []string {
+    return config.GetSupportedYd()
+}
+
+// checkYd 移动云盘核心检测逻辑（使用chromedp）
+func (y *YdChecker) checkYd(ctx context.Context, urlStr string) utils.Result {
+    // 1. 配置Chrome浏览器选项（性能优化）
+    opts := append(chromedp.DefaultExecAllocatorOptions[:],
+        chromedp.Flag("headless", true),
+        chromedp.Flag("disable-gpu", true),
+        chromedp.Flag("blink-settings", "imagesEnabled=false,cssEnabled=false"),
+        chromedp.Flag("disable-plugins", true),
+        chromedp.UserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"),
+    )
+    
+    // 2. 创建浏览器上下文
+    execCtx, cancel := chromedp.NewExecAllocator(ctx, opts...)
+    defer cancel()
+    
+    browserCtx, cancel := chromedp.NewContext(execCtx)
+    defer cancel()
+    
+    // 3. 导航到页面并提取内容
+    var pageContent string
+    err := chromedp.Run(browserCtx,
+        chromedp.Navigate(urlStr),
+        chromedp.WaitVisible("body", chromedp.ByQuery),
+        chromedp.OuterHTML("html", &pageContent, chromedp.ByQuery),
+    )
+    
+    // 4. 解析页面内容判断有效性
+    if err != nil {
+        return utils.ErrorFatal("页面访问失败: " + err.Error())
+    }
+    
+    if strings.Contains(pageContent, "文件不存在") || 
+       strings.Contains(pageContent, "分享已失效") {
+        return utils.ErrorExpired(urlStr, "分享已失效")
+    }
+    
+    return utils.Success(urlStr, "分享有效", time.Since(requestStart))
+}
 ```
 
-3. 在register.go中注册新的检查器
+#### 6.1.3 注册新的检查器
+
+在`internal/core/register.go`中注册新的检查器：
 
 ```go
-// 在init函数中添加
-RegisterChecker(&NewPanChecker{})
+func registerCheckers() {
+    once.Do(func() {
+        // 注册夸克网盘检查器
+        RegisterChecker(&QuarkChecker{})
+        // 注册电信云盘检查器
+        RegisterChecker(&TelecomChecker{})
+        // 注册百度网盘检查器
+        RegisterChecker(&BaiduChecker{})
+        // 注册阿里云盘检查器
+        RegisterChecker(&AliPanChecker{})
+        // 注册115网盘检查器
+        RegisterChecker(&YywChecker{})
+        // 注册123网盘检查器
+        RegisterChecker(&YesChecker{})
+        // 注册UC网盘检查器
+        RegisterChecker(&UcChecker{})
+        // 注册移动云盘检查器
+        RegisterChecker(&YdChecker{})
+
+        if utils.IsDesktop() {
+            // 注册迅雷网盘检查器
+            RegisterChecker(&XunleiChecker{})
+        }
+    })
+}
 ```
 
 ### 6.2 自定义HTTP客户端配置
@@ -359,6 +496,165 @@ func (q *Config) initDefault() {
 ```go
 // new_tab.go
 package ui
+
+import (
+    "fyne.io/fyne/v2"
+    "fyne.io/fyne/v2/container"
+    "fyne.io/fyne/v2/widget"
+)
+
+// NewNewTab 创建新标签页
+func NewNewTab(window fyne.Window) *container.TabItem {
+    content := container.NewVBox(
+        widget.NewLabel("新功能界面"),
+        widget.NewButton("新功能", func() {
+            // 实现新功能逻辑
+        }),
+    )
+    
+    return container.NewTabItem("新功能", content)
+}
+```
+
+2. 在应用启动时添加新标签页
+
+```go
+func (q *ShareSnifferApp) createContent() fyne.CanvasObject {
+    tabs := container.NewAppTabs(
+        check.NewCheckTab(q.window, q.state),
+        about.NewAboutTab(q.window),
+        ui.NewNewTab(q.window), // 添加新标签页
+    )
+    tabs.SetTabLocation(container.TabLocationLeading)
+    return tabs
+}
+```
+
+## 7. 构建与测试流程
+
+### 7.1 构建脚本
+
+项目提供了多种构建脚本，支持跨平台编译：
+
+#### 7.1.1 Windows平台构建
+```powershell
+# 构建GUI版本
+.\build\scripts\build-gui-windows.ps1
+
+# 构建CLI版本  
+.\build\scripts\build-cli-windows.ps1
+
+# 构建Android版本
+.\build\scripts\build-android.ps1
+
+# 批量构建所有版本
+.\build\scripts\build-all.ps1
+```
+
+#### 7.1.2 Linux平台构建
+```bash
+# 构建GUI版本
+./build/scripts/build-gui-linux.sh
+
+# 构建CLI版本
+./build/scripts/build-cli-linux.sh
+
+# 构建Android版本
+./build/scripts/build-android.sh
+
+# 批量构建所有版本
+./build/scripts/build-all.sh
+```
+
+### 7.2 测试用例管理
+
+项目使用测试用例文件进行功能验证：
+
+#### 7.2.1 测试用例文件结构
+```
+build/testcases/
+├── alipan.txt      # 阿里云盘测试用例
+├── baidu.txt       # 百度网盘测试用例
+├── quark.txt       # 夸克网盘测试用例
+├── telecom.txt     # 天翼云盘测试用例
+├── yd.txt          # 移动云盘测试用例
+├── yes.txt         # 123云盘测试用例
+├── yyw.txt         # 115网盘测试用例
+├── xunlei.txt      # 迅雷云盘测试用例
+├── uc.txt          # UC网盘测试用例
+└── all.txt         # 所有网盘测试用例
+```
+
+#### 7.2.2 测试用例合并脚本
+```powershell
+# 合并所有测试用例到all.txt
+.\build\testcases\merge.ps1
+```
+
+### 7.3 开发运行
+
+#### 7.3.1 GUI模式开发运行
+```bash
+# 初始化依赖
+go mod tidy
+
+# 运行GUI应用
+go run ./launcher/gui/main.go
+
+# 开发模式（详细编译信息）
+go clean -cache && go clean -modcache && go run -x ./launcher/gui/main.go
+```
+
+#### 7.3.2 CLI模式开发运行
+```bash
+# 运行CLI应用
+go run ./launcher/cli/main.go
+
+# 带参数运行
+go run ./launcher/cli/main.go check --file "test.txt"
+```
+
+### 7.4 平台适配说明
+
+#### 7.4.1 Android平台支持
+- 使用Fyne框架原生支持Android
+- 通过构建标签区分平台特定代码
+- 自动使用Fyne原生对话框替代桌面专用API
+
+#### 7.4.2 桌面平台优化
+- 使用sqweek/dialog提供原生文件选择体验
+- 支持Windows和Linux桌面环境
+- 优化Chrome浏览器自动化性能
+
+### 7.5 性能优化建议
+
+1. **HTTP客户端优化**
+   - 合理设置连接池大小
+   - 配置适当的超时时间
+   - 启用连接复用
+
+2. **浏览器自动化优化**
+   - 禁用不必要的资源加载
+   - 配置合适的超时时间
+   - 使用信号量控制并发数
+
+3. **内存管理优化**
+   - 及时释放HTTP响应体
+   - 合理使用goroutine
+   - 避免内存泄漏
+
+## 8. 总结
+
+Share Sniffer项目采用现代化的Go语言开发，结合了多种设计模式和最佳实践，提供了稳定可靠的网盘链接检测功能。通过模块化的架构设计，项目具有良好的可扩展性和维护性，便于二次开发和新功能添加。
+
+项目的主要特点包括：
+- 跨平台支持（Windows、Linux、Android）
+- 多种网盘检测策略（HTTP API、浏览器自动化）
+- 高性能并发处理
+- 友好的用户界面
+- 完善的测试和构建流程
+
+开发者可以根据实际需求，参考本文档进行功能扩展和定制开发。
 
 import (
     "fyne.io/fyne/v2"

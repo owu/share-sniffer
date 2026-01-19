@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/owu/share-sniffer/internal/utils"
+	"share-sniffer/internal/utils"
 )
 
 // Config 应用配置结构

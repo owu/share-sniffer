@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/owu/share-sniffer/internal/logger"
+	"share-sniffer/internal/logger"
 )
 
 // 网站URL列表

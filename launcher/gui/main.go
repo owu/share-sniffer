@@ -4,7 +4,7 @@
 package main
 
 import (
-	"github.com/owu/share-sniffer/internal/app"
+	"share-sniffer/internal/app"
 )
 
 // main 函数是程序的入口点

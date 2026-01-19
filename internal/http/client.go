@@ -11,9 +11,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/owu/share-sniffer/internal/config"
-	"github.com/owu/share-sniffer/internal/errors"
-	"github.com/owu/share-sniffer/internal/logger"
+	"share-sniffer/internal/config"
+	"share-sniffer/internal/errors"
+	"share-sniffer/internal/logger"
 )
 
 var (

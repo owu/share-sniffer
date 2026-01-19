@@ -12,9 +12,9 @@ import (
 	"time"
 
 	"github.com/chromedp/chromedp"
-	"github.com/owu/share-sniffer/internal/config"
-	"github.com/owu/share-sniffer/internal/logger"
-	"github.com/owu/share-sniffer/internal/utils"
+	"share-sniffer/internal/config"
+	"share-sniffer/internal/logger"
+	"share-sniffer/internal/utils"
 )
 
 // XunleiChecker 迅雷网盘链接检查器

@@ -9,8 +9,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/owu/share-sniffer/internal/logger"
-	"github.com/owu/share-sniffer/internal/utils"
+	"share-sniffer/internal/logger"
+	"share-sniffer/internal/utils"
 )
 
 // 链接检查器注册器

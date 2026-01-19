@@ -7,10 +7,10 @@ import (
 	"os"
 	"strings"
 
-	"github.com/owu/share-sniffer/internal/config"
-	"github.com/owu/share-sniffer/internal/core"
-	"github.com/owu/share-sniffer/internal/logger"
 	"github.com/spf13/cobra"
+	"share-sniffer/internal/config"
+	"share-sniffer/internal/core"
+	"share-sniffer/internal/logger"
 )
 
 var (

@@ -5,7 +5,7 @@ package check
 
 import (
 	"fyne.io/fyne/v2"
-	"github.com/owu/share-sniffer/internal/logger"
+	"share-sniffer/internal/logger"
 )
 
 // Android平台的对话框提供者获取函数

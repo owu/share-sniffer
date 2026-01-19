@@ -18,10 +18,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/owu/share-sniffer/internal/config"
-	"github.com/owu/share-sniffer/internal/errors"
-	"github.com/owu/share-sniffer/internal/logger"
-	"github.com/owu/share-sniffer/internal/utils"
+	"share-sniffer/internal/config"
+	"share-sniffer/internal/errors"
+	"share-sniffer/internal/logger"
+	"share-sniffer/internal/utils"
 )
 
 // BaiduChecker 百度网盘链接检查器

@@ -12,9 +12,9 @@ import (
 	"time"
 
 	"github.com/chromedp/chromedp"
-	"github.com/owu/share-sniffer/internal/config"
-	"github.com/owu/share-sniffer/internal/logger"
-	"github.com/owu/share-sniffer/internal/utils"
+	"share-sniffer/internal/config"
+	"share-sniffer/internal/logger"
+	"share-sniffer/internal/utils"
 )
 
 // YdChecker 移动云盘(139云盘)链接检查器
@@ -367,15 +367,15 @@ func (y *YdChecker) checkYd(ctx context.Context, urlStr string) utils.Result {
 					getFileNames();
 				`
 
-					var jsResult []string
-					if err := chromedp.EvaluateAsDevTools(jsCode, &jsResult).Do(ctx); err == nil {
-						if len(jsResult) > 0 {
-							folderName = jsResult[0]
-						}
+				var jsResult []string
+				if err := chromedp.EvaluateAsDevTools(jsCode, &jsResult).Do(ctx); err == nil {
+					if len(jsResult) > 0 {
+						folderName = jsResult[0]
 					}
+				}
 
-					return nil
-				}),
+				return nil
+			}),
 		)
 
 		// 如果第二阶段出错，不影响整体检测结果
@@ -475,7 +475,7 @@ func (y *YdChecker) checkYd(ctx context.Context, urlStr string) utils.Result {
 	// 清理可能的空格和换行符
 	folderName = strings.TrimSpace(folderName)
 	// 修复文件名重复问题
-	if len(folderName) > 1 && len(folderName) % 2 == 0 {
+	if len(folderName) > 1 && len(folderName)%2 == 0 {
 		halfLen := len(folderName) / 2
 		if folderName[:halfLen] == folderName[halfLen:] {
 			folderName = folderName[:halfLen]

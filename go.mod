@@ -1,4 +1,4 @@
-module github.com/owu/share-sniffer
+module share-sniffer
 
 go 1.25
 
