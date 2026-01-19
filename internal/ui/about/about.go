@@ -4,6 +4,10 @@ import (
 	"fmt"
 	"net/url"
 
+	"share-sniffer/internal/config"
+	"share-sniffer/internal/ui/icons"
+	"share-sniffer/internal/utils"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
@@ -11,9 +15,6 @@ import (
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 	"github.com/samber/lo"
-	"share-sniffer/internal/config"
-	"share-sniffer/internal/ui/icons"
-	"share-sniffer/internal/utils"
 
 	"image/color"
 )
@@ -46,7 +47,7 @@ func NewAboutTab(window fyne.Window) *container.TabItem {
 	)
 
 	u, _ := url.Parse(fmt.Sprintf("%s/issues", config.HomePage()))
-	link := widget.NewHyperlinkWithStyle("如果您有任何问题，请在 GitHub 上提交议题", u, fyne.TextAlignTrailing, fyne.TextStyle{Underline: false})
+	link := widget.NewHyperlinkWithStyle("如果您有任何问题，请在项目主页上提交议题", u, fyne.TextAlignTrailing, fyne.TextStyle{Underline: false})
 
 	// 创建可点击的版本号标签
 	versionText := "版本信息：v" + config.Version()

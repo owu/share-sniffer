@@ -156,7 +156,7 @@ chmod +x *.sh
 
 ### 6.1 Linux GUI Installation
 
-1. Download the latest installation package `ShareSniffer.v0.1.2.linux-amd64.tar.xz` to any directory
+1. Download the latest installation package `ShareSniffer.v0.2.0.linux-amd64.tar.xz` to any directory
 
 2. Extract the file, enter the directory, and install:
 
@@ -165,7 +165,7 @@ chmod +x *.sh
 mkdir ./ShareSniffer.linux-amd64 
 
 # Extract installation package
-tar -xJf ./ShareSniffer.v0.1.2.linux-amd64.tar.xz -C ./ShareSniffer.linux-amd64 
+tar -xJf ./ShareSniffer.v0.2.0.linux-amd64.tar.xz -C ./ShareSniffer.linux-amd64 
 
 # Enter installation directory
 cd ./ShareSniffer.linux-amd64 
@@ -195,7 +195,7 @@ rm -rf ./ShareSniffer.linux-amd64
 #### 6.3.1 Linux Installation
 
 ```
-Download the latest share-sniffer-cli.v0.1.2.linux-amd64
+Download the latest share-sniffer-cli.v0.2.0.linux-amd64
 Rename it to share-sniffer-cli
 Move the executable file to the `/usr/local/bin` directory
 ```
@@ -203,7 +203,7 @@ Move the executable file to the `/usr/local/bin` directory
 #### 6.3.2 Windows Installation
 
 ```
-Download the latest share-sniffer-cli.v0.1.2.windows-amd64.exe
+Download the latest share-sniffer-cli.v0.2.0.windows-amd64.exe
 Rename it to share-sniffer-cli.exe
 Optionally move the executable file to the `C:\Windows\System32` directory
 ```

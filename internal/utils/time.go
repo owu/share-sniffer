@@ -14,15 +14,15 @@ var webUrls = []struct {
 	name string
 	url  string
 }{
-	{"2345", "http://www.2345.com"},
-	{"网易", "http://www.163.com"},
-	{"知乎", "http://www.zhihu.com"},
-	{"豆瓣", "http://www.douban.com"},
-	{"百度", "http://www.baidu.com"},
-	{"国家授时中心", "http://www.ntsc.ac.cn"},
-	{"360安全卫士", "http://www.360.cn"},
-	{"beijing-time", "http://www.beijing-time.org"},
-	{"腾讯", "http://www.qq.com"},
+	{"2345", "https://www.2345.com"},
+	{"网易", "https://www.163.com"},
+	{"知乎", "https://www.zhihu.com"},
+	{"豆瓣", "https://www.douban.com"},
+	{"百度", "https://www.baidu.com"},
+	{"国家授时中心", "https://www.ntsc.ac.cn"},
+	{"360安全卫士", "https://www.360.cn"},
+	{"beijing-time", "https://www.beijing-time.org"},
+	{"腾讯", "https://www.qq.com"},
 }
 
 // 随机打乱URL切片

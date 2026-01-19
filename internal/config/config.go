@@ -34,23 +34,17 @@ type Config struct {
 		Version        string
 		AppName        string
 		AppNameCN      string
+		HomePageFree   string
 		HomePage       string
+		StaticApiFree  string
 		StaticApi      string
 		ExpirationDate int64
 	}
 
 	// 支持的链接类型
 	SupportedLinkTypes struct {
-		AllLinks []string
-		Quark    []string
-		Telecom  []string
-		Baidu    []string
-		AliPan   []string
-		Yyw      []string
-		Yes      []string
-		Uc       []string
-		Xunlei   []string
-		Yd       []string
+		Providers   map[string][]string
+		AllPrefixes []string
 	}
 }
 
@@ -63,6 +57,7 @@ var (
 func GetConfig() *Config {
 	once.Do(func() {
 		instance = &Config{}
+		instance.SupportedLinkTypes.Providers = make(map[string][]string)
 		instance.initDefault()
 		instance.loadFromEnv()
 	})
@@ -87,36 +82,42 @@ func (q *Config) initDefault() {
 	q.CheckConfig.LongMaxConcurrent = 2          // 限制长耗时任务并发数，避免资源消耗过高
 
 	// 应用信息默认配置
-	q.AppInfo.Version = "0.1.3"
+	q.AppInfo.Version = "0.2.0"
 	q.AppInfo.AppName = "Share Sniffer"
 	q.AppInfo.AppNameCN = "分享嗅探器"
-	q.AppInfo.HomePage = "https://github.com/owu/share-sniffer"
-	q.AppInfo.StaticApi = "https://owu.github.io/api/open-source/share-sniffer/base.json"
+	q.AppInfo.HomePage = "https://gitee.com/bye/share-sniffer"
+	q.AppInfo.StaticApi = "https://gitee.com/bye/oss/raw/main/sharesniffer/api/base.json"
+	q.AppInfo.HomePageFree = "https://github.com/owu/share-sniffer"
+	q.AppInfo.StaticApiFree = "https://raw.githubusercontent.com/owu/oss/refs/heads/main/sharesniffer/api/base.json"
 	q.AppInfo.ExpirationDate = 1798732799000 // 2026-12-31 23:59:59的时间戳 毫秒
 
-	q.SupportedLinkTypes.Quark = []string{"https://pan.quark.cn/s/"}
-	q.SupportedLinkTypes.Telecom = []string{"https://cloud.189.cn/web/share?", "https://cloud.189.cn/t/"}
-	q.SupportedLinkTypes.Baidu = []string{"https://pan.baidu.com/s/"}
-	q.SupportedLinkTypes.AliPan = []string{"https://www.alipan.com/s/"}
-	q.SupportedLinkTypes.Yyw = []string{"https://115cdn.com/s/"}
-	q.SupportedLinkTypes.Yes = []string{"https://www.123684.com/s/", "https://www.123865.com/s/"}
-	q.SupportedLinkTypes.Uc = []string{"https://drive.uc.cn/s/"}
-	q.SupportedLinkTypes.Xunlei = []string{"https://pan.xunlei.com/s/"}
-	q.SupportedLinkTypes.Yd = []string{"https://yun.139.com/shareweb/"}
+	// 初始化网盘前缀
+	p := q.SupportedLinkTypes.Providers
+	p["quark"] = []string{"https://pan.quark.cn/s/"}
+	p["telecom"] = []string{"https://cloud.189.cn/web/share?", "https://cloud.189.cn/t/"}
+	p["baidu"] = []string{"https://pan.baidu.com/s/"}
+	p["alipan"] = []string{"https://www.alipan.com/s/"}
+	p["yyw"] = []string{"https://115cdn.com/s/"}
+	p["yes"] = []string{"https://www.123684.com/s/", "https://www.123865.com/s/"}
+	p["uc"] = []string{"https://drive.uc.cn/s/"}
+	p["xunlei"] = []string{"https://pan.xunlei.com/s/"}
+	p["yd"] = []string{"https://yun.139.com/shareweb/"}
 
-	// 收集所有支持的链接前缀
-	q.SupportedLinkTypes.AllLinks = []string{}
-	q.SupportedLinkTypes.AllLinks = append(q.SupportedLinkTypes.AllLinks, q.SupportedLinkTypes.Quark...)
-	q.SupportedLinkTypes.AllLinks = append(q.SupportedLinkTypes.AllLinks, q.SupportedLinkTypes.Telecom...)
-	q.SupportedLinkTypes.AllLinks = append(q.SupportedLinkTypes.AllLinks, q.SupportedLinkTypes.Baidu...)
-	q.SupportedLinkTypes.AllLinks = append(q.SupportedLinkTypes.AllLinks, q.SupportedLinkTypes.AliPan...)
-	q.SupportedLinkTypes.AllLinks = append(q.SupportedLinkTypes.AllLinks, q.SupportedLinkTypes.Yyw...)
-	q.SupportedLinkTypes.AllLinks = append(q.SupportedLinkTypes.AllLinks, q.SupportedLinkTypes.Yes...)
-	q.SupportedLinkTypes.AllLinks = append(q.SupportedLinkTypes.AllLinks, q.SupportedLinkTypes.Uc...)
-	if utils.IsDesktop() {
-		q.SupportedLinkTypes.AllLinks = append(q.SupportedLinkTypes.AllLinks, q.SupportedLinkTypes.Xunlei...)
-		q.SupportedLinkTypes.AllLinks = append(q.SupportedLinkTypes.AllLinks, q.SupportedLinkTypes.Yd...)
+	q.refreshAllPrefixes()
+}
+
+// refreshAllPrefixes 刷新所有支持的前缀列表
+func (q *Config) refreshAllPrefixes() {
+	all := []string{}
+	desktopOnly := map[string]bool{"xunlei": true, "yd": true}
+
+	for name, prefixes := range q.SupportedLinkTypes.Providers {
+		if desktopOnly[name] && !utils.IsDesktop() {
+			continue
+		}
+		all = append(all, prefixes...)
 	}
+	q.SupportedLinkTypes.AllPrefixes = all
 }
 
 // loadFromEnv 从环境变量加载配置
@@ -131,18 +132,31 @@ func (q *Config) loadFromEnv() {
 
 // Name 返回应用名称（英文）和中文名称
 func Name() (string, string) {
-	config := GetConfig()
-	return config.AppInfo.AppName, config.AppInfo.AppNameCN
+	cfg := GetConfig()
+	return cfg.AppInfo.AppName, cfg.AppInfo.AppNameCN
+}
+
+func inChina() bool {
+	// 改进的判断逻辑，可以通过环境变量或时区偏移综合判断
+	now := time.Now()
+	name, offset := now.Zone()
+	return name == "CST" || offset == 8*3600
 }
 
 // HomePage 返回应用首页URL
 func HomePage() string {
-	return GetConfig().AppInfo.HomePage
+	if inChina() {
+		return GetConfig().AppInfo.HomePage
+	}
+	return GetConfig().AppInfo.HomePageFree
 }
 
 // StaticApi 返回应用静态接口URL
 func StaticApi() string {
-	return GetConfig().AppInfo.StaticApi
+	if inChina() {
+		return GetConfig().AppInfo.StaticApi
+	}
+	return GetConfig().AppInfo.StaticApiFree
 }
 
 // Version 返回应用版本号
@@ -151,7 +165,6 @@ func Version() string {
 }
 
 // ExpirationDate 返回应用过期日期时间戳（毫秒）
-// 这里设置为未来的一个日期，实际项目中可能会从服务器获取
 func ExpirationDate() int64 {
 	return GetConfig().AppInfo.ExpirationDate
 }
@@ -186,52 +199,23 @@ func GetLongMaxConcurrent() int {
 	return GetConfig().CheckConfig.LongMaxConcurrent
 }
 
-// GetSupportedLinks 获取支持的链接类型列表
+// GetSupported 获取指定网盘的支持前缀
+func GetSupported(provider string) []string {
+	return GetConfig().SupportedLinkTypes.Providers[provider]
+}
+
+// GetSupportedLinks 获取所有支持的链接前缀列表
 func GetSupportedLinks() []string {
-	return GetConfig().SupportedLinkTypes.AllLinks
+	return GetConfig().SupportedLinkTypes.AllPrefixes
 }
 
-// GetSupportedQuark 获取支持的夸克网盘链接前缀
-func GetSupportedQuark() []string {
-	return GetConfig().SupportedLinkTypes.Quark
-}
-
-// GetSupportedTelecom 获取支持的电信云盘链接前缀
-func GetSupportedTelecom() []string {
-	return GetConfig().SupportedLinkTypes.Telecom
-}
-
-// GetSupportedBaidu 获取支持的百度网盘链接前缀
-func GetSupportedBaidu() []string {
-	return GetConfig().SupportedLinkTypes.Baidu
-}
-
-// GetSupportedAliPan 获取支持的阿里云盘链接前缀
-func GetSupportedAliPan() []string {
-	return GetConfig().SupportedLinkTypes.AliPan
-}
-
-// GetSupportedYyw 获取支持的115网盘链接前缀
-func GetSupportedYyw() []string {
-	return GetConfig().SupportedLinkTypes.Yyw
-}
-
-// GetSupportedYes 获取支持的123网盘链接前缀
-func GetSupportedYes() []string {
-	return GetConfig().SupportedLinkTypes.Yes
-}
-
-// GetSupportedUc 获取支持的UC网盘链接前缀
-func GetSupportedUc() []string {
-	return GetConfig().SupportedLinkTypes.Uc
-}
-
-// GetSupportedXunlei 获取支持的迅雷网盘链接前缀
-func GetSupportedXunlei() []string {
-	return GetConfig().SupportedLinkTypes.Xunlei
-}
-
-// GetSupportedYd 获取支持的移动云盘(139云盘)链接前缀
-func GetSupportedYd() []string {
-	return GetConfig().SupportedLinkTypes.Yd
-}
+// 以下是兼容旧代码的快捷方法，内部调用 GetSupported
+func GetSupportedQuark() []string   { return GetSupported("quark") }
+func GetSupportedTelecom() []string { return GetSupported("telecom") }
+func GetSupportedBaidu() []string   { return GetSupported("baidu") }
+func GetSupportedAliPan() []string  { return GetSupported("alipan") }
+func GetSupportedYyw() []string     { return GetSupported("yyw") }
+func GetSupportedYes() []string     { return GetSupported("yes") }
+func GetSupportedUc() []string      { return GetSupported("uc") }
+func GetSupportedXunlei() []string  { return GetSupported("xunlei") }
+func GetSupportedYd() []string      { return GetSupported("yd") }

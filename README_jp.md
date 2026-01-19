@@ -156,7 +156,7 @@ chmod +x *.sh
 
 ### 6.1 Linux GUIインストール
 
-1. 最新のインストールパッケージ`ShareSniffer.v0.1.2.linux-amd64.tar.xz`を任意のディレクトリにダウンロードします
+1. 最新のインストールパッケージ`ShareSniffer.v0.2.0.linux-amd64.tar.xz`を任意のディレクトリにダウンロードします
 
 2. ファイルを解凍し、ディレクトリに入り、インストールします：
 
@@ -165,7 +165,7 @@ chmod +x *.sh
 mkdir ./ShareSniffer.linux-amd64 
 
 # インストールパッケージを解凍
-tar -xJf ./ShareSniffer.v0.1.2.linux-amd64.tar.xz -C ./ShareSniffer.linux-amd64 
+tar -xJf ./ShareSniffer.v0.2.0.linux-amd64.tar.xz -C ./ShareSniffer.linux-amd64 
 
 # インストールディレクトリに入る
 cd ./ShareSniffer.linux-amd64 
@@ -195,7 +195,7 @@ rm -rf ./ShareSniffer.linux-amd64
 #### 6.3.1 Linuxインストール
 
 ```
-最新のshare-sniffer-cli.v0.1.2.linux-amd64をダウンロードします
+最新のshare-sniffer-cli.v0.2.0.linux-amd64をダウンロードします
 share-sniffer-cliに名前を変更します
 実行ファイルを`/usr/local/bin`ディレクトリに移動します
 ```
@@ -203,7 +203,7 @@ share-sniffer-cliに名前を変更します
 #### 6.3.2 Windowsインストール
 
 ```
-最新のshare-sniffer-cli.v0.1.2.windows-amd64.exeをダウンロードします
+最新のshare-sniffer-cli.v0.2.0.windows-amd64.exeをダウンロードします
 share-sniffer-cli.exeに名前を変更します
 必要に応じて実行ファイルを`C:\Windows\System32`ディレクトリに移動します
 ```

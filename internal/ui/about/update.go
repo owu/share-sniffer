@@ -10,12 +10,13 @@ import (
 	"strings"
 	"time"
 
+	"share-sniffer/internal/config"
+	"share-sniffer/internal/logger"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
-	"share-sniffer/internal/config"
-	"share-sniffer/internal/logger"
 )
 
 // StaticConfigResponse 远程配置文件响应结构体
@@ -184,7 +185,7 @@ func showUpdateDialog(window fyne.Window, latestVersion string, currentVersion s
 	// 创建对话框内容
 	content := container.NewVBox(
 		widget.NewLabel(fmt.Sprintf("发现新版本: v%s , 当前版本: v%s", latestVersion, currentVersion)),
-		widget.NewLabel("\n请前往GitHub下载最新版本:"),
+		widget.NewLabel("\n请前往项目主页下载最新版本:"),
 	)
 
 	releases := fmt.Sprintf("%s/releases", config.HomePage())

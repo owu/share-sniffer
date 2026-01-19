@@ -156,7 +156,7 @@ chmod +x *.sh
 
 ### 6.1 Linux GUI安装
 
-1. 下载最新安装包 `ShareSniffer.v0.1.2.linux-amd64.tar.xz` 到任意目录
+1. 下载最新安装包 `ShareSniffer.v0.2.0.linux-amd64.tar.xz` 到任意目录
 
 2. 文件解压，进入目录，安装：
 
@@ -165,7 +165,7 @@ chmod +x *.sh
 mkdir ./ShareSniffer.linux-amd64 
 
 # 解压安装包
-tar -xJf ./ShareSniffer.v0.1.2.linux-amd64.tar.xz -C ./ShareSniffer.linux-amd64 
+tar -xJf ./ShareSniffer.v0.2.0.linux-amd64.tar.xz -C ./ShareSniffer.linux-amd64 
 
 # 进入安装目录
 cd ./ShareSniffer.linux-amd64 
@@ -192,13 +192,13 @@ rm -rf ./ShareSniffer.linux-amd64
 ### 6.3 share-sniffer-cli 安装
 #### 6.3.1 Linux 安装
 ```
-下载最新版 share-sniffer-cli.v0.1.2.linux-amd64
+下载最新版 share-sniffer-cli.v0.2.0.linux-amd64
 重命名为 share-sniffer-cli 
 可执行文件移动到 `/usr/local/bin` 目录
 ```
 #### 6.3.2 Windows 安装
 ```
-下载最新版 share-sniffer-cli.v0.1.2.windows-amd64.exe
+下载最新版 share-sniffer-cli.v0.2.0.windows-amd64.exe
 重命名为 share-sniffer-cli.exe
 可执行文件移动到 `C:\Windows\System32` 目录（可选）
 ```
