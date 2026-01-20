@@ -208,23 +208,28 @@ rm -rf ./ShareSniffer.linux-amd64
 
 ### 7.1 关于界面
 
-![about](https://github.com/owu/share-sniffer/raw/unstable/screenshot/about.png)
-
-![update](https://github.com/owu/share-sniffer/raw/unstable/screenshot/update.png)
+<p align="center">
+  <img src="screenshot/about.png" width="48%" />
+  <img src="screenshot/update.png" width="48%" />
+</p>
 
 ### 7.2 检测界面
 
-![check](https://github.com/owu/share-sniffer/raw/unstable/screenshot/check.png)
+<p align="center">
+  <img src="screenshot/check.png" width="48%" />
+  <img src="screenshot/open.png" width="48%" />
+</p>
 
-![open](https://github.com/owu/share-sniffer/raw/unstable/screenshot/open.png)
-
-![load](https://github.com/owu/share-sniffer/raw/unstable/screenshot/load.png)
-
-![checking](https://github.com/owu/share-sniffer/raw/unstable/screenshot/checking.png)
+<p align="center">
+  <img src="screenshot/load.png" width="48%" />
+  <img src="screenshot/checking.png" width="48%" />
+</p>
 
 ### 7.3 结果界面
 
-![result](https://github.com/owu/share-sniffer/raw/unstable/screenshot/result.png)
+<p align="center">
+  <img src="screenshot/result.png" width="48%" />
+</p>
 
 ## 8、CLI模式工具介绍
 
