@@ -1,0 +1,149 @@
+name: Release
+
+permissions:
+  contents: write
+
+on:
+  push:
+    tags:
+      - 'v[0-9].[0-9].[0-9]*'
+      - 'v[0-9].[0-9].[0-9][0-9]*'
+      - 'v[0-9].[0-9][0-9].[0-9]*'
+      - 'v[0-9].[0-9][0-9].[0-9][0-9]*'
+      - 'v[0-9][0-9].[0-9].[0-9]*'
+      - 'v[0-9][0-9].[0-9].[0-9][0-9]*'
+      - 'v[0-9][0-9].[0-9][0-9].[0-9]*'
+      - 'v[0-9][0-9].[0-9][0-9].[0-9][0-9]*'
+
+jobs:
+  build-linux:
+    name: Build Linux
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc libgl1-mesa-dev xorg-dev libgtk-3-dev
+
+      - name: Build CLI (Linux)
+        run: |
+          chmod +x build/scripts/build-cli-linux.sh
+          ./build/scripts/build-cli-linux.sh
+
+      - name: Build GUI (Linux)
+        run: |
+          export PATH=$PATH:$(go env GOPATH)/bin
+          chmod +x build/scripts/build-gui-linux.sh
+          ./build/scripts/build-gui-linux.sh
+
+      - name: Upload Linux Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-artifacts
+          path: |
+            build/releases/v*/*.tar.xz
+            build/releases/v*/share-sniffer-cli*
+
+  build-windows:
+    name: Build Windows
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+
+      - name: Build CLI (Windows)
+        shell: pwsh
+        run: .\build\scripts\build-cli-windows.ps1
+
+      - name: Build GUI (Windows)
+        shell: pwsh
+        run: |
+          $env:Path += ";$(go env GOPATH)\bin"
+          .\build\scripts\build-gui-windows.ps1
+
+      - name: Upload Windows Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-artifacts
+          path: build/releases/v*/*.exe
+
+  build-android:
+    name: Build Android
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc libgl1-mesa-dev xorg-dev
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android NDK
+        run: |
+          # Fyne requires NDK to build android apps
+          ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager "ndk;25.2.9519653"
+
+      - name: Build Android
+        run: |
+          export PATH=$PATH:$(go env GOPATH)/bin
+          chmod +x build/scripts/build-android.sh
+          ./build/scripts/build-android.sh
+
+      - name: Upload Android Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-artifacts
+          path: build/releases/v*/*.apk
+          if-no-files-found: error
+
+  release:
+    name: Release
+    needs: [build-linux, build-windows, build-android]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Display Downloaded Files
+        run: ls -R artifacts
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: artifacts/**
+          generate_release_notes: true

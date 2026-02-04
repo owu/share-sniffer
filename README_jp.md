@@ -282,6 +282,97 @@ CLIツールはJSON形式の結果を返し、他のプログラムから呼び�
 - サーバー環境での使用
 - 自動検出ワークフロー
 
+### 8.4 DockerツールとHTTP API
+
+コンテナ化された展開とリモート呼び出しを容易にするために、プロジェクトは`docker-tools.sh`スクリプトと対応するHTTP APIインターフェースのセットを提供します。
+
+#### 8.4.1 Docker管理スクリプト (docker-tools.sh)
+
+`docker-tools.sh`は、Dockerイメージの構築、コンテナの開始/停止、およびログの表示を管理するための便利なシェルスクリプトです。
+
+**使用方法：**
+
+```bash
+./docker-tools.sh [オプション]
+```
+
+**オプションの説明：**
+
+| オプション | 対応パラメータ | 説明 |
+|--------|----------------|------|
+| `b` | `build` | Dockerイメージを構築（プロキシアドレスの対話型入力をサポート） |
+| `d` | `down` | コンテナを停止して削除 |
+| `l` | `logs` | コンテナのリアルタイムログを表示 |
+| `m` | `move` | イメージの移行（イメージファイルのエクスポート/インポート） |
+| `u` | `up` | コンテナを起動（docker-composeを優先し、そうでない場合はdocker runを使用） |
+| `h` | `help` | ヘルプ情報を表示 |
+
+**構築例：**
+
+```bash
+# イメージを構築（依存関係のダウンロードを高速化するために、プロンプトに従ってプロキシアドレスを入力できます）
+./docker-tools.sh b
+
+# コンテナを起動
+./docker-tools.sh u
+```
+
+#### 8.4.2 HTTP APIインターフェース
+
+コンテナが起動した後（デフォルトポート60204）、CLIコマンドと1対1で対応する機能を持つHTTPインターフェースのセットが提供されます。
+
+**ベースURL：** `http://<IP>:60204`
+
+**インターフェースリスト：**
+
+| インターフェースパス | リクエストメソッド | 対応するCLIコマンド | 説明 |
+|------------------|------------------|-------------------|------|
+| `/api/check` | `POST` | `share-sniffer-cli [URL]` | 指定されたリンクの有効性を検出 |
+| `/api/version` | `GET` | `share-sniffer-cli version` | バージョン情報を取得 |
+| `/api/home` | `GET` | `share-sniffer-cli home` | プロジェクトのホームページアドレスを取得 |
+| `/api/support` | `GET` | `share-sniffer-cli support` | サポートされているリンクタイプのリストを取得 |
+| `/api/help` | `GET` | `share-sniffer-cli help` | ヘルプ情報を取得 |
+
+**呼び出し例：**
+
+1. **リンクの検出 (POST /api/check)**
+
+   ```bash
+   curl -X POST http://localhost:60204/api/check \
+     -H "Content-Type: application/json" \
+     -d '{"url": "https://pan.quark.cn/s/0a6e84c02020"}'
+   ```
+
+   **レスポンス：**
+   ```json
+   {
+     "error": 0,
+     "msg": "valid",
+     "data": {
+       "url": "https://pan.quark.cn/s/0a6e84c02020",
+       "name": "中国語アニメ",
+       "elapsed": 359
+     }
+   }
+   ```
+
+2. **バージョンの取得 (GET /api/version)**
+
+   ```bash
+   curl http://localhost:60204/api/version
+   # レスポンス: 0.2.2
+   ```
+
+3. **サポートリストの取得 (GET /api/support)**
+
+   ```bash
+   curl http://localhost:60204/api/support
+   # レスポンス:
+   # https://pan.quark.cn/s/
+   # https://pan.baidu.com/s/
+   # ...
+   ```
+
 ## 9、貢献
 
 IssueとPull Requestの送信を歓迎します！

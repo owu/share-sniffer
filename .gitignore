@@ -1,22 +1,8 @@
-# Binaries for programs and plugins
-*.exe
-*.exe~
-*.tar.xz
-*.apk
+/target
+.*
+!/.github/
 
-# Test binary, built with `go test -c`
-*.test
-
-# Dependency directories
-vendor/
-
-# Go workspace file
-go.work
-go.work.sum
-
-# Editor/IDE
-.idea/
-.vscode/
-
-# Editor/IDE
-build/releases/
+**/*.exe
+/logs
+/vendor
+/build/releases/*
