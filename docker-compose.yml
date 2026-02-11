@@ -1,0 +1,19 @@
+services:
+  share-sniffer:
+    image: share-sniffer:0.3.0
+    container_name: share-sniffer
+    # 使用 host 网络模式，方便访问宿主机网络和代理
+    network_mode: "host"
+    # ports: # host 模式下不需要端口映射
+    #   - "60204:60204"
+    volumes:
+      # 配置文件映射（可选，如果需要覆盖端口/超时时间可取消注释）
+      # - ./config/dockerconfig.toml:/app/config/config.toml
+      # 日志目录映射
+      - ./logs:/app/logs
+    restart: always
+    environment:
+      - TZ=Asia/Shanghai
+      # 如果需要代理，请取消注释并修改以下配置
+      # - HTTP_PROXY=http://192.168.1.10:10808
+      # - HTTPS_PROXY=http://192.168.1.10:10808

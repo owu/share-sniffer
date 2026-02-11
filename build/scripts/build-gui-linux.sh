@@ -27,7 +27,10 @@ if command -v fyne &> /dev/null; then
     echo "Found fyne in PATH"
 else
     # Try to find fyne in GOPATH/bin
-    gopath=${GOPATH:-$HOME/go}
+    gopath=$(go env GOPATH)
+    if [ -z "$gopath" ]; then
+        gopath="$HOME/go"
+    fi
     fyne_in_gopath="$gopath/bin/fyne"
     if [ -f "$fyne_in_gopath" ]; then
         fyne_path="$fyne_in_gopath"
@@ -44,7 +47,7 @@ else
         
         # Check again after installation
         if command -v fyne &> /dev/null; then
-            fyne_path="fyne"
+            fyne_path=$(command -v fyne)
         else
             fyne_path="$fyne_in_gopath"
         fi

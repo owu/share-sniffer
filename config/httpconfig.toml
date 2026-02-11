@@ -1,0 +1,4 @@
+[server]
+port = "60204"
+exec_path = '.\build\releases\v0.2.0\share-sniffer-cli.v0.2.0.linux-amd64'
+timeout = "60s"

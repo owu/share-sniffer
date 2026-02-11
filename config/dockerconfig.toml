@@ -1,0 +1,3 @@
+[server]
+port = "60204"
+timeout = "60s"

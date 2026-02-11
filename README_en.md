@@ -282,6 +282,97 @@ The CLI tool returns results in JSON format, which is convenient for calling by 
 - Use in server environments
 - Automated detection workflows
 
+### 8.4 Docker Tools and HTTP API
+
+To facilitate containerized deployment and remote calls, the project provides the `docker-tools.sh` script and a matching set of HTTP API interfaces.
+
+#### 8.4.1 Docker Management Script (docker-tools.sh)
+
+`docker-tools.sh` is a convenient Shell script used to manage Docker image building, container starting/stopping, and log viewing.
+
+**Usage:**
+
+```bash
+./docker-tools.sh [options]
+```
+
+**Options Description:**
+
+| Option | Corresponding Parameter | Description |
+|--------|-------------------------|-------------|
+| `b` | `build` | Build Docker image (supports interactive input of proxy address) |
+| `d` | `down` | Stop and remove container |
+| `l` | `logs` | View container real-time logs |
+| `m` | `move` | Image migration (export/import image file) |
+| `u` | `up` | Start container (prioritizes docker-compose, otherwise uses docker run) |
+| `h` | `help` | Show help information |
+
+**Build Example:**
+
+```bash
+# Build image (you can input proxy address according to the prompt to accelerate dependency download)
+./docker-tools.sh b
+
+# Start container
+./docker-tools.sh u
+```
+
+#### 8.4.2 HTTP API Interfaces
+
+After the container starts (default port 60204), a set of HTTP interfaces is provided, with functions corresponding one-to-one with CLI commands.
+
+**Base URL:** `http://<IP>:60204`
+
+**Interface List:**
+
+| Interface Path | Method | Corresponding CLI Command | Description |
+|----------------|--------|---------------------------|-------------|
+| `/api/check` | `POST` | `share-sniffer-cli [URL]` | Detect validity of specified link |
+| `/api/version` | `GET` | `share-sniffer-cli version` | Get version information |
+| `/api/home` | `GET` | `share-sniffer-cli home` | Get project homepage address |
+| `/api/support` | `GET` | `share-sniffer-cli support` | Get list of supported link types |
+| `/api/help` | `GET` | `share-sniffer-cli help` | Get help information |
+
+**Call Examples:**
+
+1. **Detect Link (POST /api/check)**
+
+   ```bash
+   curl -X POST http://localhost:60204/api/check \
+     -H "Content-Type: application/json" \
+     -d '{"url": "https://pan.quark.cn/s/0a6e84c02020"}'
+   ```
+
+   **Response:**
+   ```json
+   {
+     "error": 0,
+     "msg": "valid",
+     "data": {
+       "url": "https://pan.quark.cn/s/0a6e84c02020",
+       "name": "Mandarin Anime",
+       "elapsed": 359
+     }
+   }
+   ```
+
+2. **Get Version (GET /api/version)**
+
+   ```bash
+   curl http://localhost:60204/api/version
+   # Response: 0.2.2
+   ```
+
+3. **Get Supported List (GET /api/support)**
+
+   ```bash
+   curl http://localhost:60204/api/support
+   # Response:
+   # https://pan.quark.cn/s/
+   # https://pan.baidu.com/s/
+   # ...
+   ```
+
 ## 9. Contribution
 
 Welcome to submit Issues and Pull Requests!

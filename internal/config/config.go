@@ -82,7 +82,7 @@ func (q *Config) initDefault() {
 	q.CheckConfig.LongMaxConcurrent = 2          // 限制长耗时任务并发数，避免资源消耗过高
 
 	// 应用信息默认配置
-	q.AppInfo.Version = "0.2.0"
+	q.AppInfo.Version = "0.3.0"
 	q.AppInfo.AppName = "Share Sniffer"
 	q.AppInfo.AppNameCN = "分享嗅探器"
 	q.AppInfo.HomePage = "https://gitee.com/bye/share-sniffer"

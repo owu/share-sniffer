@@ -277,6 +277,97 @@ CLI工具返回JSON格式的结果，方便其他程序调用：
 - 服务器环境下使用
 - 自动化检测工作流
 
+### 8.4 Docker 工具与 HTTP API
+
+为了方便容器化部署和远程调用，项目提供了 `docker-tools.sh` 脚本和配套的 HTTP API 接口。
+
+#### 8.4.1 Docker 管理脚本 (docker-tools.sh)
+
+`docker-tools.sh` 是一个便捷的 Shell 脚本，用于管理 Docker 镜像的构建、容器的启停和日志查看。
+
+**使用方法：**
+
+```bash
+./docker-tools.sh [选项]
+```
+
+**选项说明：**
+
+| 选项 | 对应参数 | 说明 |
+|------|----------|------|
+| `b` | `build` | 构建 Docker 镜像 (支持交互式输入代理地址) |
+| `d` | `down` | 停止并移除容器 |
+| `l` | `logs` | 查看容器实时日志 |
+| `m` | `move` | 镜像迁移 (导出/导入镜像文件) |
+| `u` | `up` | 启动容器 (优先使用 docker-compose，否则使用 docker run) |
+| `h` | `help` | 显示帮助信息 |
+
+**构建示例：**
+
+```bash
+# 构建镜像（根据提示可输入代理地址，用于加速依赖下载）
+./docker-tools.sh b
+
+# 启动容器
+./docker-tools.sh u
+```
+
+#### 8.4.2 HTTP API 接口
+
+容器启动后（默认端口 60204），提供了一组 HTTP 接口，功能与 CLI 命令一一对应。
+
+**基础地址：** `http://<IP>:60204`
+
+**接口列表：**
+
+| 接口路径 | 请求方法 | 对应 CLI 命令 | 说明 |
+|----------|----------|---------------|------|
+| `/api/check` | `POST` | `share-sniffer-cli [URL]` | 检测指定链接有效性 |
+| `/api/version` | `GET` | `share-sniffer-cli version` | 获取版本信息 |
+| `/api/home` | `GET` | `share-sniffer-cli home` | 获取项目主页地址 |
+| `/api/support` | `GET` | `share-sniffer-cli support` | 获取支持的链接类型列表 |
+| `/api/help` | `GET` | `share-sniffer-cli help` | 获取帮助信息 |
+
+**调用示例：**
+
+1. **检测链接 (POST /api/check)**
+
+   ```bash
+   curl -X POST http://localhost:60204/api/check \
+     -H "Content-Type: application/json" \
+     -d '{"url": "https://pan.quark.cn/s/0a6e84c02020"}'
+   ```
+
+   **响应：**
+   ```json
+   {
+     "error": 0,
+     "msg": "valid",
+     "data": {
+       "url": "https://pan.quark.cn/s/0a6e84c02020",
+       "name": "国语动漫",
+       "elapsed": 359
+     }
+   }
+   ```
+
+2. **获取版本 (GET /api/version)**
+
+   ```bash
+   curl http://localhost:60204/api/version
+   # 响应: 0.2.2
+   ```
+
+3. **获取支持列表 (GET /api/support)**
+
+   ```bash
+   curl http://localhost:60204/api/support
+   # 响应:
+   # https://pan.quark.cn/s/
+   # https://pan.baidu.com/s/
+   # ...
+   ```
+
 ## 9、贡献
 
 欢迎提交 Issue 和 Pull Request！

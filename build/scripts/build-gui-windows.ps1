@@ -26,10 +26,9 @@ if ($fynePath) {
     Write-Host "Found fyne in PATH: $fynePath"
 } else {
     # Try to find fyne in GOPATH/bin
-    $gopath = if ($env:GOPATH) {
-        $env:GOPATH
-    } else {
-        Join-Path $env:USERPROFILE "go"
+    $gopath = go env GOPATH
+    if (-not $gopath) {
+        $gopath = Join-Path $env:USERPROFILE "go"
     }
     
     $fyneInGopath = Join-Path $gopath "bin\fyne.exe"
@@ -47,8 +46,10 @@ if ($fynePath) {
         }
         
         # Check again after installation
-        $fynePath = Get-Command fyne -ErrorAction SilentlyContinue
-        if (-not $fynePath) {
+        $cmd = Get-Command fyne -ErrorAction SilentlyContinue
+        if ($cmd) {
+            $fynePath = $cmd.Source
+        } else {
             $fynePath = $fyneInGopath
         }
         

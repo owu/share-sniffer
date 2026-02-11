@@ -2,11 +2,11 @@
 
 # Bash script to build Android version
 
-# Get the current directory
-current_dir=$(dirname "$0")
+# Set working directory to the script's directory
+cd "$(dirname "$0")"
 
-# Path to config.go
-config_path="$current_dir/../../internal/config/config.go"
+# Path to config.go (relative to script directory)
+config_path="../../internal/config/config.go"
 
 # Read version from config.go
 version_line=$(grep -E 'q\.AppInfo\.Version\s*=\s*"[^"]+"' "$config_path")
@@ -27,7 +27,10 @@ if command -v fyne &> /dev/null; then
     echo "Found fyne in PATH"
 else
     # Try to find fyne in GOPATH/bin
-    gopath=${GOPATH:-$HOME/go}
+    gopath=$(go env GOPATH)
+    if [ -z "$gopath" ]; then
+        gopath="$HOME/go"
+    fi
     fyne_in_gopath="$gopath/bin/fyne"
     if [ -f "$fyne_in_gopath" ]; then
         fyne_path="$fyne_in_gopath"
@@ -44,7 +47,7 @@ else
         
         # Check again after installation
         if command -v fyne &> /dev/null; then
-            fyne_path="fyne"
+            fyne_path=$(command -v fyne)
         else
             fyne_path="$fyne_in_gopath"
         fi
@@ -60,8 +63,10 @@ fi
 
 # Set parameters
 name="ShareSniffer"
-icon=$(readlink -f "$current_dir/../../static/logo.png")
-src=$(readlink -f "$current_dir/../../launcher/gui")
+# Resolve absolute paths for fyne command to avoid issues
+current_dir=$(pwd)
+icon=$(readlink -f "../../static/logo.png")
+src=$(readlink -f "../../launcher/gui")
 app_id="owu.github.io"
 
 # Architectures to build for
@@ -71,11 +76,9 @@ architectures=("arm64" "amd64")
 echo "Cleaning Go cache..."
 go clean -cache
 
-# Store current directory to return to it later
-original_dir=$(pwd)
-
-# Change to package directory to ensure generated file is placed in the right location
-cd "$current_dir"
+# Create output directory
+OUTPUT_DIR="../releases/v$version"
+mkdir -p "$OUTPUT_DIR"
 
 # Loop through each architecture
 for arch in "${architectures[@]}"; do
@@ -102,6 +105,7 @@ for arch in "${architectures[@]}"; do
     generated_apk=""
     
     # Try multiple possible locations for the generated APK
+    # Since we are in build/scripts, and src is absolute path
     possible_locations=("$name.apk" "../$name.apk" "$src/$name.apk")
     
     for location in "${possible_locations[@]}"; do
@@ -116,19 +120,12 @@ for arch in "${architectures[@]}"; do
         continue
     fi
     
-    # Create releases directory if it doesn't exist
-    releases_dir="$current_dir/../releases/v$version"
-    mkdir -p "$releases_dir"
-    
     # Move and rename the APK to releases directory with architecture suffix
-    target_apk="$releases_dir/$expected_executable"
+    target_apk="$OUTPUT_DIR/$expected_executable"
     mv -f "$generated_apk" "$target_apk"
     
     echo "Build for $arch completed successfully. Output file: $target_apk"
 done
-
-# Return to original directory
-cd "$original_dir"
 
 echo -e "\n=== All builds completed ==="
 
