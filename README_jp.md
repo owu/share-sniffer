@@ -1,6 +1,6 @@
 # Share Sniffer（シェアスニッファー）
 
-[English](./README_en.md) | [中文](./README.md) | 日本語
+[English](./README.md) | [中文](./README_cn.md) | 日本語
 
 
 ## 1、紹介
